@@ -617,7 +617,7 @@
                     const badges = [];
                     if (col.pk) badges.push('PK');
                     if (col.fk && col.ref) badges.push('FK');
-                    const suffix = badges.length > 0 ? ` <small>${badges.join(',')}</small>` : '';
+                    const suffix = badges.length > 0 ? ` [${badges.join(',')}]` : '';
                     graph += `        ${col.type} ${col.name}${suffix}\n`;
                 });
                 graph += '    }\n\n';

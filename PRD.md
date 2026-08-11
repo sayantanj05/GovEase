@@ -10,7 +10,7 @@ Here is a clean **English documentation version** of what your friend is trying 
 
 The main idea is simple:
 
-> **A user enters their personal, educational, financial, and professional information only once. GovEase AI then uses this profile to help them discover eligible government jobs and schemes, prepare applications, manage documents, and track application deadlines and status.**
+> **A user enters their personal, educational, financial, and professional information only once. GovEase AI then uses this profile to help them discover eligible government jobs, exams and schemes, prepare applications, manage documents, and track application deadlines and status.**
 
 Instead of repeatedly entering the same information into different government portals, users can maintain a centralized profile and use that information throughout the application process.
 
