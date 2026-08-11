@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GovEase AI - OCR Processing Flow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">GovEase AI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="flow-header text-center">
+            <h2>9. OCR Processing Flow</h2>
+            <p>Document upload, OCR queue, OCR engine processing, LLM extraction, and profile update</p>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="mermaid">
+flowchart LR
+    User((User)) -->|1. Upload document| Frontend[Frontend - React.js]
+    Frontend -->|2. Upload to S3| DocumentService[Document Service]
+    DocumentService -->|3. Queue OCR job| Queue[(Message Queue)]
+    Queue -->|4. OCR job| OCREngine[OCR Engine]
+    OCREngine -->|5. Extract text| OCREngine
+    OCREngine -->|6. Send extracted text| LLMService[LLM Service]
+    LLMService -->|7. Extract structured data| LLMService
+    LLMService -->|8. Return JSON data| ProfileService[Profile Service]
+    ProfileService -->|9. Save to profile| ProfileService
+    ProfileService -->|10. Update profile record| DB[(MongoDB)]
+    ProfileService -->|11. Profile updated| Frontend
+    Frontend -->|12. Confirm and edit| User
+    User -->|13. Confirm data| Frontend
+    Frontend -->|14. PATCH /api/profile| ProfileService
+    ProfileService -->|15. Finalize profile| DB
+
+    classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef service fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef ocr fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+
+    class User user
+    class Frontend,DocumentService,LLMService,ProfileService service
+    class OCREngine ocr
+    class DB,Queue storage
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="info-box">
+                    <h5>What This Flow Does</h5>
+                    <p>When a user uploads a document like a certificate or ID card, the system does not just store the file. It sends the document to a smart scanning engine that reads the text inside. This process is called OCR, or Optical Character Recognition. The engine turns the image of the document into plain text that a computer can understand.</p>
+                    <p>The extracted text is then passed to an AI service that organizes the information into structured data. It figures out which parts are names, dates, numbers, or other important fields. This structured data is saved temporarily as a suggestion for the user's profile.</p>
+                    <p>Before anything is permanently saved, the user gets to review the extracted information. They can confirm that it is correct or make changes. Only after the user explicitly confirms does the system update their profile with the new data. This step prevents errors from messy handwriting or bad scans from polluting the user's records.</p>
+                    <p>This flow saves users from manually typing long documents into forms. It turns paper or image files into digital profile data quickly and accurately, while keeping the user in control of what finally gets saved.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="../flows/flow-notification.html" class="btn btn-outline-primary me-2">← Previous: Notifications</a>
+                <a href="../flows/flow-admin.html" class="btn btn-primary">Next: Admin Management →</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-4 bg-light">
+        <div class="container text-center text-muted">
+            <p class="mb-0">GovEase AI - Data Flow Documentation</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GovEase AI - Opportunity Discovery Flow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">GovEase AI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="flow-header text-center">
+            <h2>5. Opportunity Discovery & Search Flow</h2>
+            <p>Admin opportunity creation, user search, caching, and database retrieval</p>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="mermaid">
+flowchart LR
+    Admin((Admin)) -->|1. Create opportunity| AdminPanel[Admin Panel]
+    AdminPanel -->|2. POST /api/admin/opportunities| AdminService[Admin Service]
+    AdminService -->|3. Validate rules| AdminService
+    AdminService -->|4. Save opportunity| DB[(MongoDB)]
+    DB -->|5. Index opportunity| AdminService
+    AdminService -->|6. Opportunity created| AdminPanel
+
+    User((User)) -->|7. Search opportunities| Frontend[Frontend - React.js]
+    Frontend -->|8. GET /api/opportunities| OpportunityService[Opportunity Service]
+    OpportunityService -->|9. Check cache| Redis[(Redis Cache)]
+    Redis -->|10. Cache hit| OpportunityService
+    Redis -->|11. Cache miss| DB
+    DB -->|12. Return opportunities| OpportunityService
+    OpportunityService -->|13. Update cache| Redis
+    OpportunityService -->|14. Filtered results| Frontend
+    Frontend -->|15. Display results| User
+
+    classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef service fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+
+    class Admin,User user
+    class AdminPanel,AdminService,OpportunityService,Frontend service
+    class DB,Redis storage
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="info-box">
+                    <h5>What This Flow Does</h5>
+                    <p>Admins use this flow to create and publish new opportunities on the platform. They enter details like the title, eligibility rules, deadlines, and any documents needed. The system checks that all the rules are written correctly before saving. Once saved, the opportunity is indexed so it can be found quickly when users search.</p>
+                    <p>When a regular user searches for opportunities, the system looks at what they asked for and checks its database. Before searching the main database every single time, the system checks a fast temporary cache. If the same search was done recently, the results are already there and can be shown instantly. If not, the system fetches fresh results from the database and stores a copy in the cache for next time.</p>
+                    <p>This means searches feel fast even when many people are using the platform. The cache has a time limit, so old results are automatically replaced with new ones. Users see the most current opportunities while the system saves processing power by not repeating the same searches over and over.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="../flows/flow-eligibility.html" class="btn btn-outline-primary me-2">← Previous: Eligibility</a>
+                <a href="../flows/flow-recommendation.html" class="btn btn-primary">Next: AI Recommendations →</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-4 bg-light">
+        <div class="container text-center text-muted">
+            <p class="mb-0">GovEase AI - Data Flow Documentation</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

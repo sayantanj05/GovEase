@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GovEase AI - Eligibility Engine Flow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">GovEase AI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="flow-header text-center">
+            <h2>4. Eligibility Engine Flow</h2>
+            <p>Deterministic rule evaluation, explanation generation, and audit logging</p>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="mermaid">
+flowchart LR
+    User((User)) -->|1. Check eligibility| Frontend[Frontend - React.js]
+    Frontend -->|2. POST /api/eligibility/check| EligibilityService[Eligibility Service]
+    EligibilityService -->|3. Fetch profile| ProfileService[Profile Service]
+    ProfileService -->|4. Return profile data| EligibilityService
+    EligibilityService -->|5. Fetch opportunity rules| OpportunityService[Opportunity Service]
+    OpportunityService -->|6. Return eligibility_rules| EligibilityService
+    EligibilityService -->|7. Run deterministic rules| EligibilityService
+    EligibilityService -->|8. Generate explanations| EligibilityService
+    EligibilityService -->|9. Log evaluation| AuditLog[(Audit Logs)]
+    EligibilityService -->|10. Eligibility result| Frontend
+    Frontend -->|11. Display result| User
+
+    subgraph Deterministic Rules
+        R1[Age check]
+        R2[Education check]
+        R3[Income check]
+        R4[Category check]
+        R5[Experience check]
+    end
+
+    EligibilityService -.-> R1
+    EligibilityService -.-> R2
+    EligibilityService -.-> R3
+    EligibilityService -.-> R4
+    EligibilityService -.-> R5
+
+    classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef service fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+
+    class User user
+    class EligibilityService,ProfileService,OpportunityService,Frontend service
+    class AuditLog storage
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="info-box">
+                    <h5>What This Flow Does</h5>
+                    <p>When a user wants to know if they qualify for a specific opportunity, the system asks a simple question: does this person meet the rules? To answer that, it pulls the user's profile details and the opportunity's requirements. It looks at things like age, education, income, category, and work experience.</p>
+                    <p>The system then runs a set of clear, rule-based checks. For example, it might check whether the user is old enough, has the right degree, or earns less than a certain amount. These checks are deterministic, meaning they always give the same result for the same inputs. There is no guessing involved.</p>
+                    <p>For every rule that is checked, the system writes down a simple explanation. If the user qualifies, it says why. If the user does not qualify, it points out which rule they missed. These explanations are stored in an audit log along with the user ID, opportunity ID, and the exact time the check was done.</p>
+                    <p>The final result shows whether the user is eligible, a confidence score, and a plain-language explanation for each rule. This makes it easy for users to understand why they qualify or what they need to change. The audit log also helps admins review decisions and makes the system transparent and trustworthy.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="../flows/flow-document.html" class="btn btn-outline-primary me-2">← Previous: Documents</a>
+                <a href="../flows/flow-opportunity.html" class="btn btn-primary">Next: Opportunity Discovery →</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-4 bg-light">
+        <div class="container text-center text-muted">
+            <p class="mb-0">GovEase AI - Data Flow Documentation</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

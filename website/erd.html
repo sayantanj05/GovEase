@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GovEase AI - Database ERD Diagram</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --primary-dark: #0a58ca;
+            --bg-light: #f8f9fa;
+            --border: #dee2e6;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-light);
+            margin: 0; padding: 0;
+        }
+        .navbar { box-shadow: var(--shadow); z-index: 1000; }
+        .navbar-brand { font-weight: 700; font-size: 1.25rem; }
+        .main-container {
+            display: flex; height: calc(100vh - 56px); overflow: hidden;
+        }
+        .sidebar {
+            width: 320px; min-width: 320px; background: white;
+            border-right: 1px solid var(--border); display: flex; flex-direction: column;
+            overflow: hidden; box-shadow: var(--shadow); z-index: 100;
+        }
+        .sidebar-header {
+            padding: 1rem; border-bottom: 1px solid var(--border); background: white;
+        }
+        .sidebar-header h6 { margin: 0; font-weight: 600; color: #495057; }
+        .search-box { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+        .search-box input {
+            width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border);
+            border-radius: 0.375rem; font-size: 0.875rem;
+        }
+        .search-box input:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+        }
+        .table-list { flex: 1; overflow-y: auto; padding: 0.5rem; }
+        .table-item {
+            padding: 0.625rem 0.75rem; margin-bottom: 0.25rem; border-radius: 0.375rem;
+            cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center;
+            gap: 0.5rem; font-size: 0.875rem; color: #495057;
+        }
+        .table-item:hover { background-color: #e9ecef; }
+        .table-item.active {
+            background-color: #e7f1ff; color: var(--primary); font-weight: 600;
+        }
+        .table-item i { font-size: 0.75rem; opacity: 0.7; }
+        .table-count {
+            margin-left: auto; font-size: 0.75rem; background: #e9ecef;
+            padding: 0.125rem 0.5rem; border-radius: 1rem; color: #6c757d;
+        }
+        .table-item.active .table-count { background: #cfe2ff; color: var(--primary); }
+        .diagram-area {
+            flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative;
+        }
+        .diagram-toolbar {
+            padding: 0.75rem 1.5rem; background: white; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+        }
+        .toolbar-group { display: flex; align-items: center; gap: 0.5rem; }
+        .toolbar-btn {
+            padding: 0.375rem 0.75rem; border: 1px solid var(--border); background: white;
+            border-radius: 0.375rem; font-size: 0.875rem; cursor: pointer;
+            transition: all 0.15s; color: #495057;
+        }
+        .toolbar-btn:hover { background: #e9ecef; }
+        .toolbar-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .zoom-level {
+            font-size: 0.875rem; color: #6c757d; min-width: 3rem; text-align: center;
+        }
+        .diagram-canvas {
+            flex: 1; overflow: auto; padding: 2rem; display: flex; justify-content: center;
+            align-items: flex-start; background: #f5f5f5;
+            background-image: radial-gradient(#dee2e6 1px, transparent 1px); background-size: 20px 20px;
+        }
+        .diagram-content {
+            background: white; border-radius: 0.5rem; box-shadow: var(--shadow); padding: 2rem;
+            min-width: 800px; transition: transform 0.1s ease; transform-origin: top center;
+        }
+        .mermaid {
+            width: 100%;
+        }
+        .table-detail-panel {
+            position: fixed; top: 56px; right: -420px; width: 400px;
+            height: calc(100vh - 56px); background: white; border-left: 1px solid var(--border);
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1); transition: right 0.3s ease;
+            z-index: 999; overflow-y: auto; padding: 1.5rem;
+        }
+        .table-detail-panel.open { right: 0; }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+        }
+        .panel-header h5 { margin: 0; font-weight: 600; }
+        .close-panel {
+            background: none; border: none; font-size: 1.25rem; cursor: pointer;
+            color: #6c757d; padding: 0; width: 2rem; height: 2rem; display: flex;
+            align-items: center; justify-content: center; border-radius: 0.375rem;
+        }
+        .close-panel:hover { background: #e9ecef; }
+        .detail-section { margin-bottom: 1.5rem; }
+        .detail-section h6 {
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+            color: #6c757d; margin-bottom: 0.75rem; font-weight: 600;
+        }
+        .column-list { list-style: none; padding: 0; margin: 0; }
+        .column-item {
+            display: flex; align-items: center; padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f3f5; font-size: 0.875rem;
+        }
+        .column-item:last-child { border-bottom: none; }
+        .column-name { font-weight: 500; color: #212529; flex: 1; }
+        .column-type {
+            font-size: 0.75rem; color: #6c757d; background: #f1f3f5;
+            padding: 0.125rem 0.5rem; border-radius: 0.25rem; margin-right: 0.5rem;
+        }
+        .column-badge {
+            font-size: 0.7rem; padding: 0.125rem 0.5rem; border-radius: 0.25rem; font-weight: 500;
+        }
+        .badge-pk { background: #fff3cd; color: #856404; }
+        .badge-fk { background: #d1e7dd; color: #0f5132; }
+        .badge-nn { background: #f8d7da; color: #842029; }
+        .stats-bar {
+            display: flex; gap: 1.5rem; padding: 0.5rem 1rem;
+            font-size: 0.875rem; color: #6c757d;
+        }
+        .stat-item { display: flex; align-items: center; gap: 0.375rem; }
+        .stat-value { font-weight: 600; color: #495057; }
+        @media (max-width: 768px) {
+            .sidebar { width: 260px; min-width: 260px; }
+            .diagram-toolbar { padding: 0.5rem; gap: 0.5rem; }
+            .table-detail-panel { width: 100%; right: -100%; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="../index.html">
+                <i class="fas fa-project-diagram me-2"></i>GovEase AI - ERD Diagram
+            </a>
+            <div class="ms-auto">
+                <a href="../index.html" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h6><i class="fas fa-database me-2"></i>Tables</h6>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchTables" placeholder="Search tables...">
+            </div>
+            <div class="table-list" id="tableList"></div>
+        </div>
+
+        <div class="diagram-area">
+            <div class="diagram-toolbar">
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" onclick="zoomIn()" title="Zoom In"><i class="fas fa-search-plus"></i></button>
+                    <button class="toolbar-btn" onclick="zoomOut()" title="Zoom Out"><i class="fas fa-search-minus"></i></button>
+                    <button class="toolbar-btn" onclick="resetZoom()" title="Reset Zoom"><i class="fas fa-compress-arrows-alt"></i></button>
+                    <span class="zoom-level" id="zoomLevel">100%</span>
+                </div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" onclick="fitToScreen()" title="Fit to Screen"><i class="fas fa-expand"></i> Fit</button>
+                </div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" onclick="toggleDirection()" title="Toggle Direction"><i class="fas fa-exchange-alt"></i> <span id="directionLabel">LR</span></button>
+                </div>
+                <div class="stats-bar">
+                    <div class="stat-item"><i class="fas fa-table"></i><span>Tables:</span><span class="stat-value" id="tableCount">0</span></div>
+                    <div class="stat-item"><i class="fas fa-columns"></i><span>Columns:</span><span class="stat-value" id="columnCount">0</span></div>
+                    <div class="stat-item"><i class="fas fa-link"></i><span>Relations:</span><span class="stat-value" id="relationCount">0</span></div>
+                </div>
+            </div>
+            <div class="diagram-canvas" id="diagramCanvas">
+                <div class="diagram-content" id="diagramContent">
+                    <div class="mermaid" id="mermaidDiagram"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-detail-panel" id="detailPanel">
+        <div class="panel-header">
+            <h5 id="panelTitle">Table Details</h5>
+            <button class="close-panel" onclick="closePanel()"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="panelContent"></div>
+    </div>
+
+        const schemaData = {
+            tables: {
+                "users": {
+                    columns: [
+                        { name: "user_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "email", type: "VARCHAR(255)", pk: false, fk: false, nn: true },
+                        { name: "phone", type: "VARCHAR(20)", pk: false, fk: false, nn: false },
+                        { name: "password_hash", type: "VARCHAR(255)", pk: false, fk: false, nn: true },
+                        { name: "status", type: "VARCHAR(20)", pk: false, fk: false, nn: true },
+                        { name: "email_verified", type: "BOOLEAN", pk: false, fk: false, nn: true },
+                        { name: "phone_verified", type: "BOOLEAN", pk: false, fk: false, nn: true },
+                        { name: "mfa_enabled", type: "BOOLEAN", pk: false, fk: false, nn: true },
+                        { name: "mfa_secret", type: "VARCHAR(255)", pk: false, fk: false, nn: false },
+                        { name: "last_login_at", type: "TIMESTAMP", pk: false, fk: false, nn: false },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "updated_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "admin_users": {
+                    columns: [
+                        { name: "admin_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "role", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "assigned_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "assigned_by", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: false }
+                    ]
+                },
+                "profiles": {
+                    columns: [
+                        { name: "profile_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "full_name", type: "VARCHAR(255)", pk: false, fk: false, nn: true },
+                        { name: "father_name", type: "VARCHAR(255)", pk: false, fk: false, nn: false },
+                        { name: "mother_name", type: "VARCHAR(255)", pk: false, fk: false, nn: false },
+                        { name: "date_of_birth", type: "DATE", pk: false, fk: false, nn: true },
+                        { name: "gender", type: "VARCHAR(20)", pk: false, fk: false, nn: true },
+                        { name: "category", type: "VARCHAR(50)", pk: false, fk: false, nn: false },
+                        { name: "income_range", type: "VARCHAR(50)", pk: false, fk: false, nn: false },
+                        { name: "disability_status", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "disability_percentage", type: "INTEGER", pk: false, fk: false, nn: false },
+                        { name: "domicile_state", type: "VARCHAR(100)", pk: false, fk: false, nn: false },
+                        { name: "domicile_district", type: "VARCHAR(100)", pk: false, fk: false, nn: false },
+                        { name: "completeness_score", type: "INTEGER", pk: false, fk: false, nn: true },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "updated_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "addresses": {
+                    columns: [
+                        { name: "address_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "line1", type: "VARCHAR(255)", pk: false, fk: false, nn: true },
+                        { name: "line2", type: "VARCHAR(255)", pk: false, fk: false, nn: false },
+                        { name: "state", type: "VARCHAR(100)", pk: false, fk: false, nn: true },
+                        { name: "district", type: "VARCHAR(100)", pk: false, fk: false, nn: true },
+                        { name: "pin_code", type: "VARCHAR(10)", pk: false, fk: false, nn: true },
+                        { name: "is_primary", type: "BOOLEAN", pk: false, fk: false, nn: true },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "updated_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "identities": {
+                    columns: [
+                        { name: "identity_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "id_type", type: "VARCHAR(20)", pk: false, fk: false, nn: true },
+                        { name: "id_number_encrypted", type: "TEXT", pk: false, fk: false, nn: true },
+                        { name: "masked_number", type: "VARCHAR(255)", pk: false, fk: false, nn: true },
+                        { name: "verified", type: "BOOLEAN", pk: false, fk: false, nn: true },
+                        { name: "verified_at", type: "TIMESTAMP", pk: false, fk: false, nn: false },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "updated_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "education": {
+                    columns: [
+                        { name: "education_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "qualification", type: "VARCHAR(100)", pk: false, fk: false, nn: true },
+                        { name: "institution", type: "VARCHAR(255)", pk: false, fk: false, nn: true },
+                        { name: "board_university", type: "VARCHAR(255)", pk: false, fk: false, nn: false },
+                        { name: "course", type: "VARCHAR(255)", pk: false, fk: false, nn: false },
+                        { name: "specialization", type: "VARCHAR(255)", pk: false, fk: false, nn: false },
+                        { name: "passing_year", type: "INTEGER", pk: false, fk: false, nn: true },
+                        { name: "percentage_cgpa", type: "DECIMAL(5,2)", pk: false, fk: false, nn: false },
+                        { name: "subjects", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "updated_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "experience": {
+                    columns: [
+                        { name: "experience_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "employment_status", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "organization", type: "VARCHAR(255)", pk: false, fk: false, nn: false },
+                        { name: "role", type: "VARCHAR(255)", pk: false, fk: false, nn: false },
+                        { name: "start_date", type: "DATE", pk: false, fk: false, nn: true },
+                        { name: "end_date", type: "DATE", pk: false, fk: false, nn: false },
+                        { name: "duration_months", type: "INTEGER", pk: false, fk: false, nn: false },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "updated_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "skills": {
+                    columns: [
+                        { name: "skill_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "skill_type", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "name", type: "VARCHAR(100)", pk: false, fk: false, nn: true },
+                        { name: "details", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "updated_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "documents": {
+                    columns: [
+                        { name: "document_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "type", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "file_name", type: "VARCHAR(255)", pk: false, fk: false, nn: true },
+                        { name: "file_size", type: "BIGINT", pk: false, fk: false, nn: true },
+                        { name: "mime_type", type: "VARCHAR(100)", pk: false, fk: false, nn: true },
+                        { name: "storage_path", type: "VARCHAR(500)", pk: false, fk: false, nn: true },
+                        { name: "checksum", type: "CHAR(64)", pk: false, fk: false, nn: true },
+                        { name: "verification_status", type: "VARCHAR(20)", pk: false, fk: false, nn: true },
+                        { name: "verified_by", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: false },
+                        { name: "verified_at", type: "TIMESTAMP", pk: false, fk: false, nn: false },
+                        { name: "expires_at", type: "TIMESTAMP", pk: false, fk: false, nn: false },
+                        { name: "is_deleted", type: "BOOLEAN", pk: false, fk: false, nn: true },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "updated_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "document_versions": {
+                    columns: [
+                        { name: "version_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "document_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "documents", nn: true },
+                        { name: "file_name", type: "VARCHAR(255)", pk: false, fk: false, nn: true },
+                        { name: "file_size", type: "BIGINT", pk: false, fk: false, nn: true },
+                        { name: "storage_path", type: "VARCHAR(500)", pk: false, fk: false, nn: true },
+                        { name: "checksum", type: "CHAR(64)", pk: false, fk: false, nn: true },
+                        { name: "uploaded_by", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "opportunities": {
+                    columns: [
+                        { name: "opportunity_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "title", type: "VARCHAR(500)", pk: false, fk: false, nn: true },
+                        { name: "organization", type: "VARCHAR(255)", pk: false, fk: false, nn: true },
+                        { name: "opportunity_type", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "description", type: "TEXT", pk: false, fk: false, nn: false },
+                        { name: "location", type: "VARCHAR(255)", pk: false, fk: false, nn: false },
+                        { name: "work_model", type: "VARCHAR(20)", pk: false, fk: false, nn: false },
+                        { name: "min_age", type: "INTEGER", pk: false, fk: false, nn: false },
+                        { name: "max_age", type: "INTEGER", pk: false, fk: false, nn: false },
+                        { name: "educational_qualifications", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "required_skills", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "experience_required", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "category_requirements", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "income_requirements", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "disability_requirements", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "domicile_requirements", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "application_start_date", type: "TIMESTAMP", pk: false, fk: false, nn: false },
+                        { name: "application_deadline", type: "TIMESTAMP", pk: false, fk: false, nn: false },
+                        { name: "exam_date", type: "TIMESTAMP", pk: false, fk: false, nn: false },
+                        { name: "interview_date", type: "TIMESTAMP", pk: false, fk: false, nn: false },
+                        { name: "document_verification_date", type: "TIMESTAMP", pk: false, fk: false, nn: false },
+                        { name: "result_date", type: "TIMESTAMP", pk: false, fk: false, nn: false },
+                        { name: "official_application_url", type: "TEXT", pk: false, fk: false, nn: false },
+                        { name: "required_documents", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "eligibility_rules", type: "JSONB", pk: false, fk: false, nn: true },
+                        { name: "source", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "source_url", type: "TEXT", pk: false, fk: false, nn: true },
+                        { name: "last_verified_at", type: "TIMESTAMP", pk: false, fk: false, nn: false },
+                        { name: "verification_status", type: "VARCHAR(20)", pk: false, fk: false, nn: true },
+                        { name: "status", type: "VARCHAR(20)", pk: false, fk: false, nn: true },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "updated_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "eligibility_checks": {
+                    columns: [
+                        { name: "check_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "opportunity_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "opportunities", nn: true },
+                        { name: "result", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "confidence", type: "DECIMAL(3,2)", pk: false, fk: false, nn: true },
+                        { name: "explanations", type: "JSONB", pk: false, fk: false, nn: true },
+                        { name: "missing_fields", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "rule_snapshot", type: "JSONB", pk: false, fk: false, nn: true },
+                        { name: "evaluated_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "eligibility_rules": {
+                    columns: [
+                        { name: "rule_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "rule_name", type: "VARCHAR(255)", pk: false, fk: false, nn: true },
+                        { name: "description", type: "TEXT", pk: false, fk: false, nn: false },
+                        { name: "field", type: "VARCHAR(100)", pk: false, fk: false, nn: true },
+                        { name: "operator", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "params", type: "JSONB", pk: false, fk: false, nn: true },
+                        { name: "failure_message", type: "TEXT", pk: false, fk: false, nn: false },
+                        { name: "required", type: "BOOLEAN", pk: false, fk: false, nn: true },
+                        { name: "rule_version", type: "INTEGER", pk: false, fk: false, nn: true },
+                        { name: "is_active", type: "BOOLEAN", pk: false, fk: false, nn: true },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "updated_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "recommendation_events": {
+                    columns: [
+                        { name: "event_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "opportunity_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "opportunities", nn: true },
+                        { name: "score", type: "DECIMAL(3,2)", pk: false, fk: false, nn: false },
+                        { name: "reasons", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "model_version", type: "VARCHAR(50)", pk: false, fk: false, nn: false },
+                        { name: "feature_version", type: "VARCHAR(50)", pk: false, fk: false, nn: false },
+                        { name: "interaction_type", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "applications": {
+                    columns: [
+                        { name: "application_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "opportunity_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "opportunities", nn: true },
+                        { name: "application_number", type: "VARCHAR(100)", pk: false, fk: false, nn: false },
+                        { name: "status", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "form_data", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "documents", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "official_portal_url", type: "TEXT", pk: false, fk: false, nn: false },
+                        { name: "notes", type: "TEXT", pk: false, fk: false, nn: false },
+                        { name: "submitted_at", type: "TIMESTAMP", pk: false, fk: false, nn: false },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "updated_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "application_status_history": {
+                    columns: [
+                        { name: "history_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "application_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "applications", nn: true },
+                        { name: "previous_status", type: "VARCHAR(50)", pk: false, fk: false, nn: false },
+                        { name: "new_status", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "changed_by", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "notes", type: "TEXT", pk: false, fk: false, nn: false },
+                        { name: "changed_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "saved_opportunities": {
+                    columns: [
+                        { name: "saved_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "opportunity_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "opportunities", nn: true },
+                        { name: "saved_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "notifications": {
+                    columns: [
+                        { name: "notification_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "type", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "title", type: "VARCHAR(255)", pk: false, fk: false, nn: true },
+                        { name: "message", type: "TEXT", pk: false, fk: false, nn: true },
+                        { name: "channel", type: "VARCHAR(20)", pk: false, fk: false, nn: true },
+                        { name: "read", type: "BOOLEAN", pk: false, fk: false, nn: true },
+                        { name: "scheduled_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "sent_at", type: "TIMESTAMP", pk: false, fk: false, nn: false },
+                        { name: "delivery_status", type: "VARCHAR(20)", pk: false, fk: false, nn: true },
+                        { name: "idempotency_key", type: "VARCHAR(255)", pk: false, fk: false, nn: false },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "notification_preferences": {
+                    columns: [
+                        { name: "preference_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "deadline_reminders", type: "BOOLEAN", pk: false, fk: false, nn: true },
+                        { name: "status_updates", type: "BOOLEAN", pk: false, fk: false, nn: true },
+                        { name: "new_opportunities", type: "BOOLEAN", pk: false, fk: false, nn: true },
+                        { name: "document_expiry", type: "BOOLEAN", pk: false, fk: false, nn: true },
+                        { name: "channels", type: "JSONB", pk: false, fk: false, nn: true },
+                        { name: "quiet_hours_start", type: "TIME", pk: false, fk: false, nn: false },
+                        { name: "quiet_hours_end", type: "TIME", pk: false, fk: false, nn: false },
+                        { name: "timezone", type: "VARCHAR(50)", pk: false, fk: false, nn: true },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "updated_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "user_preferences": {
+                    columns: [
+                        { name: "preference_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "user_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: true },
+                        { name: "preferred_languages", type: "JSONB", pk: false, fk: false, nn: true },
+                        { name: "notification_channels", type: "JSONB", pk: false, fk: false, nn: true },
+                        { name: "location_preferences", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "opportunity_type_preferences", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "salary_range_min", type: "INTEGER", pk: false, fk: false, nn: false },
+                        { name: "salary_range_max", type: "INTEGER", pk: false, fk: false, nn: false },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true },
+                        { name: "updated_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                },
+                "audit_logs": {
+                    columns: [
+                        { name: "log_id", type: "VARCHAR(255)", pk: true, fk: false, nn: true },
+                        { name: "actor_id", type: "VARCHAR(255)", pk: false, fk: true, ref: "users", nn: false },
+                        { name: "actor_role", type: "VARCHAR(50)", pk: false, fk: false, nn: false },
+                        { name: "action", type: "VARCHAR(100)", pk: false, fk: false, nn: true },
+                        { name: "target_entity", type: "VARCHAR(100)", pk: false, fk: false, nn: false },
+                        { name: "target_id", type: "VARCHAR(255)", pk: false, fk: false, nn: false },
+                        { name: "changes", type: "JSONB", pk: false, fk: false, nn: false },
+                        { name: "ip_address", type: "VARCHAR(45)", pk: false, fk: false, nn: false },
+                        { name: "user_agent", type: "TEXT", pk: false, fk: false, nn: false },
+                        { name: "created_at", type: "TIMESTAMP", pk: false, fk: false, nn: true }
+                    ]
+                }
+            }
+        };
+
+        let currentZoom = 1;
+        let currentDirection = 'LR';
+
+        function init() {
+            renderTableList();
+            renderDiagram();
+            updateStats();
+            setupEventListeners();
+        }
+
+        function renderTableList() {
+            const tableList = $('#tableList');
+            tableList.empty();
+            Object.keys(schemaData.tables).forEach(tableName => {
+                const table = schemaData.tables[tableName];
+                const count = table.columns.length;
+                const item = $(`
+                    <div class="table-item" data-table="${tableName}">
+                        <i class="fas fa-table"></i>
+                        <span>${tableName}</span>
+                        <span class="table-count">${count}</span>
+                    </div>
+                `);
+                item.on('click', () => selectTable(tableName));
+                tableList.append(item);
+            });
+        }
+
+        function selectTable(tableName) {
+            $('.table-item').removeClass('active');
+            $(`.table-item[data-table="${tableName}"]`).addClass('active');
+            showTableDetails(tableName);
+        }
+
+        function showTableDetails(tableName) {
+            const table = schemaData.tables[tableName];
+            if (!table) return;
+
+            $('#panelTitle').text(`${tableName} Table`);
+            let html = `
+                <div class="detail-section">
+                    <h6>Columns (${table.columns.length})</h6>
+                    <ul class="column-list">
+            `;
+
+            table.columns.forEach(col => {
+                let badges = '';
+                if (col.pk) badges += '<span class="column-badge badge-pk">PK</span>';
+                if (col.fk) badges += '<span class="column-badge badge-fk">FK</span>';
+                if (col.nn) badges += '<span class="column-badge badge-nn">NN</span>';
+
+                html += `
+                    <li class="column-item">
+                        <span class="column-name">${col.name}</span>
+                        <span class="column-type">${col.type}</span>
+                        ${badges}
+                    </li>
+                `;
+            });
+
+            html += '</ul></div>';
+            $('#panelContent').html(html);
+            $('#detailPanel').addClass('open');
+        }
+
+        function closePanel() {
+            $('#detailPanel').removeClass('open');
+        }
+
+        function renderDiagram() {
+            const graphDef = generateMermaidGraph();
+            const container = $('#diagramContent');
+            container.html(`<div class="mermaid">${graphDef}</div>`);
+            mermaid.run({
+                querySelector: '.mermaid'
+            }).catch(err => {
+                console.error('Mermaid render error:', err);
+                $('.mermaid').replaceWith(`<pre style="color:red;padding:1rem;">Diagram error: ${err.message}</pre>`);
+            });
+        }
+
+        function generateMermaidGraph() {
+            const tables = Object.keys(schemaData.tables);
+            let graph = 'erDiagram\n';
+
+            tables.forEach(tableName => {
+                const table = schemaData.tables[tableName];
+                graph += `    ${tableName} {\n`;
+                table.columns.forEach(col => {
+                    const badges = [];
+                    if (col.pk) badges.push('PK');
+                    if (col.fk && col.ref) badges.push('FK');
+                    const suffix = badges.length > 0 ? ` <small>${badges.join(',')}</small>` : '';
+                    graph += `        ${col.type} ${col.name}${suffix}\n`;
+                });
+                graph += '    }\n\n';
+            });
+
+            tables.forEach(tableName => {
+                const table = schemaData.tables[tableName];
+                table.columns.forEach(col => {
+                    if (col.fk && col.ref) {
+                        graph += `    ${tableName} ||--o{ ${col.ref} : ""\n`;
+                    }
+                });
+            });
+
+            return graph;
+        }
+
+        function updateStats() {
+            const tables = Object.keys(schemaData.tables);
+            let totalColumns = 0;
+            let totalRelations = 0;
+
+            tables.forEach(tableName => {
+                totalColumns += schemaData.tables[tableName].columns.length;
+                schemaData.tables[tableName].columns.forEach(col => {
+                    if (col.fk) totalRelations++;
+                });
+            });
+
+            $('#tableCount').text(tables.length);
+            $('#columnCount').text(totalColumns);
+            $('#relationCount').text(totalRelations);
+        }
+
+        function setupEventListeners() {
+            $('#searchTables').on('input', function() {
+                const query = $(this).val().toLowerCase();
+                $('.table-item').each(function() {
+                    const tableName = $(this).data('table').toLowerCase();
+                    if (tableName.includes(query)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+        }
+
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom + 0.1, 2);
+            applyZoom();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom - 0.1, 0.5);
+            applyZoom();
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            applyZoom();
+        }
+
+        function applyZoom() {
+            $('#diagramContent').css('transform', `scale(${currentZoom})`);
+            $('#zoomLevel').text(Math.round(currentZoom * 100) + '%');
+        }
+
+        function fitToScreen() {
+            currentZoom = 0.8;
+            applyZoom();
+        }
+
+        function toggleDirection() {
+            currentDirection = currentDirection === 'LR' ? 'TD' : 'LR';
+            $('#directionLabel').text(currentDirection);
+            renderDiagram();
+        }
+
+        $(document).ready(function() {
+            init();
+        });
+    </script>
+</body>
+</html>

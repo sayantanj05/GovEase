@@ -1,0 +1,82 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.flow-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.flow-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.flow-card .btn-primary {
+    background-color: #0d6efd;
+    border: none;
+    padding: 8px 24px;
+}
+
+.mermaid {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin: 20px 0;
+    overflow-x: auto;
+}
+
+.flow-header {
+    background-color: #0d6efd;
+    color: white;
+    padding: 15px 0;
+    margin-bottom: 30px;
+    border-radius: 8px;
+}
+
+.flow-header h2 {
+    margin: 0;
+    font-size: 1.75rem;
+}
+
+.flow-header p {
+    margin: 5px 0 0 0;
+    opacity: 0.9;
+}
+
+.info-box {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+
+.sensitive-badge {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.normal-badge {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.back-btn {
+    margin-bottom: 20px;
+}
+
+.navbar-brand {
+    font-weight: 600;
+}

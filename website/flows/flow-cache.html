@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GovEase AI - Cache & Sessions Flow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">GovEase AI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="flow-header text-center">
+            <h2>12. Cache & Sessions Flow</h2>
+            <p>Login session storage, Redis caching, cache hit/miss handling, and database fallback</p>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="mermaid">
+flowchart LR
+    User((User)) -->|1. Login| Frontend[Frontend - React.js]
+    Frontend -->|2. POST /api/auth/login| AuthService[Auth Service]
+    AuthService -->|3. Validate credentials| AuthService
+    AuthService -->|4. Generate session| AuthService
+    AuthService -->|5. Store session| Redis[(Redis)]
+    AuthService -->|6. Return session token| Frontend
+
+    User -->|7. API request| Frontend
+    Frontend -->|8. Request with token| APIGateway[API Gateway]
+    APIGateway -->|9. Check cache| Redis
+    Redis -->|10. Cache hit| APIGateway
+    APIGateway -->|11. Return cached data| Frontend
+    Redis -->|12. Cache miss| DB[(MongoDB)]
+    DB -->|13. Fetch data| APIGateway
+    APIGateway -->|14. Store in cache| Redis
+    APIGateway -->|15. Return data| Frontend
+
+    classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef service fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+
+    class User user
+    class Frontend,AuthService,APIGateway service
+    class Redis,DB storage
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="info-box">
+                    <h5>What This Flow Does</h5>
+                    <p>This flow is all about making the platform feel fast and responsive. When a user logs in, the system does not just let them in and forget about it. It creates a session record and stores it in a fast in-memory database called Redis. This session acts like a temporary pass that remembers the user is logged in without asking for the password again on every page.</p>
+                    <p>Whenever the user asks for data, the system first checks the cache to see if it already has the answer ready. If the data is there and still fresh, it is sent back immediately. This is called a cache hit, and it is much faster than asking the main database. If the data is not in the cache or has expired, the system fetches it from the main database, saves a copy in the cache, and then sends it to the user.</p>
+                    <p>The cache has a time limit, so old data automatically expires and gets replaced with fresh data the next time it is needed. This ensures users always see current information without slowing down the system by storing too much old data.</p>
+                    <p>This flow is like the platform's short-term memory. It remembers recent requests so it can answer faster, but it also knows when to forget old information and ask the main database for the latest truth.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="../flows/flow-external.html" class="btn btn-outline-primary me-2">← Previous: External</a>
+                <a href="../flows/flow-audit.html" class="btn btn-primary">Next: Audit & Compliance →</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-4 bg-light">
+        <div class="container text-center text-muted">
+            <p class="mb-0">GovEase AI - Data Flow Documentation</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

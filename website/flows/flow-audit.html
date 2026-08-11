@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GovEase AI - Audit & Compliance Flow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">GovEase AI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="flow-header text-center">
+            <h2>13. Audit & Compliance Flow</h2>
+            <p>User action logging, admin action logging, scheduler retention cleanup, and compliance reporting</p>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="mermaid">
+flowchart LR
+    User((User)) -->|1. User action| Frontend[Frontend - React.js]
+    Frontend -->|2. API request| Backend[Backend]
+    Backend -->|3. Log action| AuditService[Audit Service]
+    AuditService -->|4. Write audit log| AuditLog[(Audit Log DB)]
+    AuditService -->|5. Return success| Backend
+    Backend -->|6. Response| Frontend
+
+    Admin((Admin)) -->|7. Admin action| AdminPanel[Admin Panel]
+    AdminPanel -->|8. API request| Backend
+    Backend -->|9. Log admin action| AuditService
+    AuditService -->|10. Write admin audit| AuditLog
+
+    Scheduler((Scheduler)) -->|11. Retention cleanup| AuditService
+    AuditService -->|12. Delete old logs| AuditLog
+    AuditService -->|13. Compliance report| ComplianceReport[(Compliance DB)]
+
+    classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef service fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+
+    class User,Admin,Scheduler user
+    class Frontend,Backend,AuditService,AdminPanel service
+    class AuditLog,ComplianceReport storage
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="info-box">
+                    <h5>What This Flow Does</h5>
+                    <p>This flow is the platform's security camera and record keeper. Every time a user or an admin does something important, like logging in, updating a profile, or submitting an application, the system writes it down in an audit log. The log records who did the action, what they did, and exactly when they did it.</p>
+                    <p>For regular users, the log keeps track of their activity on the platform. For admins, it captures every management action they take, such as approving an application or updating an opportunity. These logs are stored in a dedicated database and are kept safe from tampering.</p>
+                    <p>A background scheduler also runs periodically to clean up old logs according to a retention policy. This keeps the audit database from growing too large. The scheduler can also generate compliance reports that summarize activity over time for regulators or internal review.</p>
+                    <p>This flow makes the platform transparent and accountable. If any question ever arises about who did what and when, the audit log provides a clear, unchangeable record. It is a key part of the platform's security and compliance strategy.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="../flows/flow-cache.html" class="btn btn-outline-primary me-2">← Previous: Cache</a>
+                <a href="../index.html" class="btn btn-primary">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-4 bg-light">
+        <div class="container text-center text-muted">
+            <p class="mb-0">GovEase AI - Data Flow Documentation</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

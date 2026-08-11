@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GovEase AI - Document Upload Flow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">GovEase AI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="flow-header text-center">
+            <h2>3. Document Upload & Storage Flow</h2>
+            <p>Secure document upload, virus scanning, S3 storage, and signed URL generation</p>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="mermaid">
+flowchart LR
+    User((User)) -->|Select file| Frontend[Frontend - React.js]
+    Frontend -->|Multipart upload| DocService[Document Service]
+    DocService -->|Validate file| DocService
+    DocService -->|Presigned S3 URL| Frontend
+    Frontend -->|Direct upload| S3[(S3 Object Storage)]
+    S3 -->|Upload callback| DocService
+    DocService -->|Queue scan| Queue[(Message Queue)]
+    Queue -->|Scan job| Scanner[Virus Scanner]
+    Scanner -->|Scan result| DocService
+    DocService -->|Save metadata| DB[(MongoDB)]
+    DocService -->|Response| Frontend
+
+    User -->|Request download| Frontend
+    Frontend -->|GET documents| DocService
+    DocService -->|Authorize| DocService
+    DocService -->|Signed URL| Frontend
+    Frontend -->|Download| S3
+
+    classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef service fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    classDef queue fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+
+    class User user
+    class DocService,Frontend service
+    class S3,DB storage
+    class Queue,Scanner queue
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="info-box">
+                    <h5>What This Flow Does</h5>
+                    <p>When a user needs to upload a document, they simply select the file from their device. The system does not make the file travel through the main backend servers. Instead, it creates a special, time-limited upload link that sends the file straight to secure cloud storage. This makes uploading fast and keeps the file safe while it travels.</p>
+                    <p>After the file is uploaded, it is not immediately trusted. The system puts the document into a virus-scanning queue. A separate scanning service checks the file for malware and harmful content. Only after the scan comes back clean does the system save the document's details in the database.</p>
+                    <p>When the user wants to download or view their document later, the system first checks that they are allowed to access it. If they are, it creates another short-lived link that lets them download the file directly from secure storage. These links expire quickly for security.</p>
+                    <p>This flow makes document handling fast, secure, and user-friendly. Files never sit exposed on backend servers, everything is scanned for safety, and users can access their documents whenever they need them.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="../flows/flow-profile.html" class="btn btn-outline-primary me-2">← Previous: Profile</a>
+                <a href="../flows/flow-eligibility.html" class="btn btn-primary">Next: Eligibility Engine →</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-4 bg-light">
+        <div class="container text-center text-muted">
+            <p class="mb-0">GovEase AI - Data Flow Documentation</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

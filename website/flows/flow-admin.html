@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GovEase AI - Admin Management Flow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">GovEase AI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="flow-header text-center">
+            <h2>10. Admin Management Flow</h2>
+            <p>Admin actions, authorization, database updates, audit logging, and notifications</p>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="mermaid">
+flowchart LR
+    Admin((Admin)) -->|1. Admin action| AdminPanel[Admin Panel]
+    AdminPanel -->|2. Authenticate| AuthService[Auth Service]
+    AuthService -->|3. Validate token| AuthService
+    AuthService -->|4. Authorize| AdminPanel
+    AdminPanel -->|5. API request| AdminService[Admin Service]
+    AdminService -->|6. Execute action| AdminService
+    AdminService -->|7. Update DB| DB[(MongoDB)]
+    AdminService -->|8. Log action| AuditLog[(Audit Log)]
+    AdminService -->|9. Trigger notification| NotificationService[Notification Service]
+    NotificationService -->|10. Notify user| User((User))
+    AdminService -->|11. Response| AdminPanel
+    AdminPanel -->|12. Display result| Admin
+
+    classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef service fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+
+    class Admin,User user
+    class AdminPanel,AuthService,AdminService,NotificationService service
+    class DB,AuditLog storage
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="info-box">
+                    <h5>What This Flow Does</h5>
+                    <p>This flow is the control center for platform administrators. When an admin wants to take action, such as creating a new opportunity, reviewing an application, or updating user status, they start from the admin panel. Before they can do anything, the system checks their login token and confirms that they actually have admin privileges. This prevents regular users from accessing admin features.</p>
+                    <p>Once the admin is authorized, their request goes to the admin service. The service performs the requested action, which could be updating records in the database, changing user roles, or modifying content. Every single action is logged in an audit trail that records who did what and when. This creates a clear history that can be reviewed later for security or compliance.</p>
+                    <p>After the action is completed, the system may send a notification to the affected user. For example, if an admin approves an application, the user gets a message saying their application was approved. The admin then sees a confirmation on their screen that the action was successful.</p>
+                    <p>This flow keeps the platform organized and secure. Admins have powerful tools to manage content and users, but every action is watched, recorded, and traced back to a specific person.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="../flows/flow-ocr.html" class="btn btn-outline-primary me-2">← Previous: OCR</a>
+                <a href="../flows/flow-external.html" class="btn btn-primary">Next: External Integrations →</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-4 bg-light">
+        <div class="container text-center text-muted">
+            <p class="mb-0">GovEase AI - Data Flow Documentation</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

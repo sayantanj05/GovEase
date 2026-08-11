@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GovEase AI - AI Recommendations Flow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">GovEase AI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="flow-header text-center">
+            <h2>6. AI Recommendations Flow</h2>
+            <p>Profile matching, eligibility filtering, AI ranking, and personalized recommendations</p>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="mermaid">
+flowchart LR
+    User((User)) -->|1. Request recommendations| Frontend[Frontend - React.js]
+    Frontend -->|2. GET /api/recommendations| RecommendationService[Recommendation Service]
+    RecommendationService -->|3. Fetch profile| ProfileService[Profile Service]
+    ProfileService -->|4. Return profile| RecommendationService
+    RecommendationService -->|5. Fetch opportunities| OpportunityService[Opportunity Service]
+    OpportunityService -->|6. Return opportunities| RecommendationService
+    RecommendationService -->|7. Apply eligibility filter| RecommendationService
+    RecommendationService -->|8. AI ranking model| AIEngine[AI Ranking Engine]
+    AIEngine -->|9. Ranked scores| RecommendationService
+    RecommendationService -->|10. Generate explanations| LLM[LLM Service]
+    LLM -->|11. Explanation text| RecommendationService
+    RecommendationService -->|12. Recommendations| Frontend
+    Frontend -->|13. Display results| User
+
+    classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef service fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef ai fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+
+    class User user
+    class Frontend,RecommendationService,ProfileService,OpportunityService service
+    class AIEngine,LLM ai
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="info-box">
+                    <h5>What This Flow Does</h5>
+                    <p>When a user asks for recommendations, the system first fetches their profile and the full list of available opportunities. It does not just throw everything at the user. Instead, it first filters out opportunities that the user clearly cannot apply for based on basic rules.</p>
+                    <p>After the initial filter, an AI ranking model steps in. This model looks at the user's skills, background, and preferences and compares them against each remaining opportunity. It assigns a relevance score to each one, ranking them from most likely to be a great fit to least likely.</p>
+                    <p>To make the suggestions feel personal and helpful, the system also asks a language model to write a short explanation for each recommendation. These explanations tell the user why a particular opportunity was suggested, mentioning matching skills or profile details.</p>
+                    <p>The user sees a short list of the top recommendations, each with its own score and plain-English explanation. This saves the user time searching through hundreds of options and helps them discover opportunities they might have otherwise missed.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="../flows/flow-opportunity.html" class="btn btn-outline-primary me-2">← Previous: Opportunity</a>
+                <a href="../flows/flow-application.html" class="btn btn-primary">Next: Application Flow →</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-4 bg-light">
+        <div class="container text-center text-muted">
+            <p class="mb-0">GovEase AI - Data Flow Documentation</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

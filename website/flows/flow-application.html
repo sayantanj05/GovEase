@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GovEase AI - Application Flow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">GovEase AI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="flow-header text-center">
+            <h2>7. Application Flow</h2>
+            <p>Open application, data fetch, pre-fill, user confirmation, submission, and notification</p>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="mermaid">
+flowchart LR
+    User((User)) -->|1. Open application| Frontend[Frontend - React.js]
+    Frontend -->|2. GET /api/applications/:id| ApplicationService[Application Service]
+    ApplicationService -->|3. Fetch profile| ProfileService[Profile Service]
+    ProfileService -->|4. Return profile data| ApplicationService
+    ApplicationService -->|5. Fetch opportunity| OpportunityService[Opportunity Service]
+    OpportunityService -->|6. Return opportunity| ApplicationService
+    ApplicationService -->|7. Pre-fill form| ApplicationService
+    ApplicationService -->|8. Application form data| Frontend
+    Frontend -->|9. Display pre-filled form| User
+    User -->|10. Confirm and submit| Frontend
+    Frontend -->|11. POST /api/applications| ApplicationService
+    ApplicationService -->|12. Validate data| ApplicationService
+    ApplicationService -->|13. Save application| DB[(MongoDB)]
+    ApplicationService -->|14. Trigger notification| NotificationService[Notification Service]
+    NotificationService -->|15. Queue notification| Queue[(Message Queue)]
+    Queue -->|16. Send notification| User
+    NotificationService -->|17. Application confirmed| Frontend
+
+    classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef service fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+
+    class User user
+    class Frontend,ApplicationService,ProfileService,OpportunityService,NotificationService service
+    class DB,Queue storage
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="info-box">
+                    <h5>What This Flow Does</h5>
+                    <p>When a user decides to apply for an opportunity, the system prepares a form for them. It automatically pulls the user's saved profile details and the opportunity information, then fills in the form fields with the data it already has. This saves the user from typing the same information over and over.</p>
+                    <p>The user reviews the pre-filled form on their screen. They can accept the data as it is, or they can edit any part of it before submitting. Once they are happy with everything, they confirm the application. The system then checks the data one more time to make sure nothing is missing or invalid.</p>
+                    <p>After the data passes validation, the application is saved in the database with a status that says it has been submitted. The system then sends a notification to the user to confirm that the application went through successfully. It may also send reminders later about deadlines or updates.</p>
+                    <p>This flow turns what could be a long, repetitive application process into a quick and easy experience. Users apply faster, make fewer mistakes, and get clear confirmation that their submission was received.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="../flows/flow-recommendation.html" class="btn btn-outline-primary me-2">← Previous: Recommendations</a>
+                <a href="../flows/flow-notification.html" class="btn btn-primary">Next: Notifications →</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-4 bg-light">
+        <div class="container text-center text-muted">
+            <p class="mb-0">GovEase AI - Data Flow Documentation</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>
