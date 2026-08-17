@@ -197,13 +197,52 @@ CREATE TABLE opportunities (
 );
 
 -- ============================================
+-- EXAMS
+-- ============================================
+
+CREATE TABLE exams (
+    exam_id VARCHAR(255) PRIMARY KEY,
+    exam_name VARCHAR(500) NOT NULL,
+    exam_body VARCHAR(255) NOT NULL,
+    exam_category VARCHAR(100) CHECK (exam_category IN ('Civil Services', 'SSC', 'Banking', 'Railway', 'Defence', 'Police', 'Teaching', 'State PSC', 'PSU', 'Other')),
+    exam_type VARCHAR(100) CHECK (exam_type IN ('Preliminary', 'Mains', 'Interview', 'Physical Test', 'Skill Test', 'Document Verification', 'Other')),
+    exam_mode VARCHAR(50) CHECK (exam_mode IN ('Online', 'Offline', 'Hybrid')),
+    total_vacancies INTEGER,
+    application_fee DECIMAL(10,2),
+    subjects JSONB,
+    total_marks INTEGER,
+    duration_minutes INTEGER,
+    negative_marking BOOLEAN DEFAULT FALSE,
+    negative_marking_value DECIMAL(5,2),
+    cutoff_marks INTEGER,
+    number_of_attempts_allowed INTEGER,
+    age_relaxation JSONB,
+    educational_qualifications JSONB,
+    physical_requirements JSONB,
+    application_start_date TIMESTAMP,
+    application_deadline TIMESTAMP,
+    exam_date TIMESTAMP,
+    result_date TIMESTAMP,
+    score_validity_years INTEGER,
+    official_website TEXT,
+    eligibility_rules JSONB NOT NULL,
+    notification_sent BOOLEAN DEFAULT FALSE,
+    notification_sent_at TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'Upcoming' CHECK (status IN ('Upcoming', 'Active', 'Closed', 'Expired', 'Cancelled')),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================
 -- ELIGIBILITY ENGINE
 -- ============================================
 
 CREATE TABLE eligibility_checks (
     check_id VARCHAR(255) PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL REFERENCES users(user_id),
-    opportunity_id VARCHAR(255) NOT NULL REFERENCES opportunities(opportunity_id),
+    exam_id VARCHAR(255) REFERENCES exams(exam_id),
+    opportunity_id VARCHAR(255) REFERENCES opportunities(opportunity_id),
     result VARCHAR(50) NOT NULL CHECK (result IN ('Eligible', 'Probably Eligible', 'Not Eligible', 'Insufficient Information', 'Requires Manual Verification')),
     confidence DECIMAL(3,2) NOT NULL CHECK (confidence BETWEEN 0 AND 1),
     explanations JSONB NOT NULL,
@@ -376,6 +415,14 @@ CREATE INDEX idx_opportunities_location ON opportunities(location);
 CREATE INDEX idx_opportunities_source ON opportunities(source);
 CREATE INDEX idx_opportunities_verification_status ON opportunities(verification_status);
 
+-- Exams
+CREATE INDEX idx_exams_exam_body ON exams(exam_body);
+CREATE INDEX idx_exams_exam_category ON exams(exam_category);
+CREATE INDEX idx_exams_status ON exams(status);
+CREATE INDEX idx_exams_exam_date ON exams(exam_date);
+CREATE INDEX idx_exams_application_deadline ON exams(application_deadline);
+CREATE INDEX idx_exams_notification_sent ON exams(notification_sent);
+
 -- Applications
 CREATE INDEX idx_applications_user_id ON applications(user_id);
 CREATE INDEX idx_applications_opportunity_id ON applications(opportunity_id);
@@ -428,6 +475,7 @@ CREATE INDEX idx_recommendation_events_created_at ON recommendation_events(creat
 -- users 1--* applications
 -- opportunities 1--* applications
 -- opportunities 1--* eligibility_checks
+-- exams 1--* eligibility_checks
 -- users 1--* eligibility_checks
 -- users 1--* recommendation_events
 -- opportunities 1--* recommendation_events

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GovEase AI - Consolidated System Flow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">GovEase AI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="flow-header text-center">
+            <h2>Consolidated System Architecture Flow</h2>
+            <p>Unified view of all 13 data flows across user, service, data, and external layers</p>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <img src="DFD_Consolidated.png" alt="Consolidated System Flow Diagram" class="img-fluid rounded shadow">
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="info-box">
+                    <h5>About This Diagram</h5>
+                    <p>This consolidated flow chart combines all 13 individual data flows into a single system architecture view. It is organized into six logical layers:</p>
+                    <ul>
+                        <li><strong>User Layer:</strong> End users and administrators who interact with the platform</li>
+                        <li><strong>Client Layer:</strong> The React.js frontend that serves as the single entry point</li>
+                        <li><strong>System Layer:</strong> Core microservices handling authentication, profiles, documents, opportunities, eligibility, recommendations, applications, notifications, admin tasks, integrations, and audit</li>
+                        <li><strong>Processing Layer:</strong> AI/LLM services, OCR engine, virus scanner, and notification channel workers</li>
+                        <li><strong>Data Layer:</strong> MongoDB, Redis cache, S3 object storage, and message queue</li>
+                        <li><strong>External Systems:</strong> Government APIs, external portals, and calendar services</li>
+                    </ul>
+                    <p>All 13 individual flow diagrams feed into this unified architecture. Use the navigation below to explore each flow in detail.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="../index.html" class="btn btn-outline-primary me-2">← Back to Home</a>
+                <a href="../flows/flow-auth.html" class="btn btn-primary">View Individual Flows →</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-4 bg-light">
+        <div class="container text-center text-muted">
+            <p class="mb-0">GovEase AI - Data Flow Documentation</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

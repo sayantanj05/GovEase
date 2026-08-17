@@ -1,0 +1,133 @@
+flowchart TD
+    subgraph U [User Layer]
+        E[End User / Citizen]
+        A[Admin / Content Manager]
+    end
+
+    subgraph C [Client Layer]
+        W[React.js Frontend]
+    end
+
+    subgraph S [System Layer - Core Services]
+        Auth[Auth Service]
+        Profile[Profile Service]
+        Doc[Document Service]
+        Opp[Opportunity Service]
+        Eligibility[Eligibility Service]
+        Rec[Recommendation Service]
+        App[Application Service]
+        Notif[Notification Service]
+        AdminSvc[Admin Service]
+        Integ[Integration Service]
+        Audit[Audit Service]
+    end
+
+    subgraph P [Processing Layer]
+        AI[AI / LLM Service]
+        OCR[OCR Engine]
+        Scanner[Virus Scanner]
+        Workers[Channel Workers<br/>Email / Push / WhatsApp]
+    end
+
+    subgraph B [Backend / Platform Layer]
+        Gateway[API Gateway]
+        Scheduler[Scheduler]
+    end
+
+    subgraph D [Data Layer]
+        MongoDB[(MongoDB)]
+        Redis[(Redis Cache)]
+        S3[(S3 Object Storage)]
+        Queue[(Message Queue)]
+    end
+
+    subgraph E2 [External Systems]
+        GovAPI[Government Portals / APIs]
+        ExtPortal[External Portals]
+        Cal[Calendar Services]
+    end
+
+    E -->|Auth / Profile / Docs / Apps / Search / Recommendations| W
+    A -->|Admin actions / Content mgmt / Verification| W
+
+    W -->|HTTP Requests| Gateway
+    Gateway -->|Route| Auth
+    Gateway -->|Route| Profile
+    Gateway -->|Route| Doc
+    Gateway -->|Route| Opp
+    Gateway -->|Route| Eligibility
+    Gateway -->|Route| Rec
+    Gateway -->|Route| App
+    Gateway -->|Route| Notif
+    Gateway -->|Route| AdminSvc
+    Gateway -->|Route| Integ
+    Gateway -->|Route| Audit
+
+    Auth -->|Validate / Generate tokens| MongoDB
+    Auth -->|Session storage| Redis
+
+    Profile -->|CRUD / Encrypt| MongoDB
+    Profile -->|Cache / Invalidate| Redis
+
+    Doc -->|Presigned URL| S3
+    Doc -->|Queue scan| Queue
+    Queue -->|Scan job| Scanner
+    Scanner -->|Clean / Infected| Doc
+    Doc -->|Metadata| MongoDB
+
+    Opp -->|Admin CRUD| MongoDB
+    Opp -->|Cache results| Redis
+    Integ -->|Fetch / Transform| GovAPI
+    Integ -->|Sync status| ExtPortal
+    Integ -->|Store| MongoDB
+
+    Eligibility -->|Fetch profile| Profile
+    Eligibility -->|Fetch rules| Opp
+    Eligibility -->|Run rules| Eligibility
+    Eligibility -->|Log result| Audit
+
+    Rec -->|Fetch profile| Profile
+    Rec -->|Fetch opportunities| Opp
+    Rec -->|Eligibility filter| Eligibility
+    Rec -->|Rank / Score| AI
+    Rec -->|Generate explanations| AI
+
+    App -->|Pre-fill| Profile
+    App -->|Fetch opportunity| Opp
+    App -->|Save| MongoDB
+    App -->|Trigger| Notif
+
+    Notif -->|Queue| Queue
+    Queue -->|Dispatch| Workers
+    Workers -->|Email| E
+    Workers -->|Push| E
+    Workers -->|WhatsApp| E
+
+    AdminSvc -->|Authorize| Auth
+    AdminSvc -->|Execute| MongoDB
+    AdminSvc -->|Log| Audit
+    AdminSvc -->|Notify| Notif
+
+    Audit -->|Log actions| MongoDB
+    Scheduler -->|Cleanup| Audit
+    Scheduler -->|Check deadlines| Notif
+
+    OCR -->|Extract text| OCR
+    AI -->|Structure data| Profile
+    Profile -->|Update| MongoDB
+
+    classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef client fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef service fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef processing fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    classDef backend fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    classDef data fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    classDef external fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,stroke-dasharray: 5 5
+
+    class E,A user
+    class W client
+    class Auth,Profile,Doc,Opp,Eligibility,Rec,App,Notif,AdminSvc,Integ,Audit service
+    class AI,OCR,Scanner,Workers processing
+    class Gateway,Scheduler backend
+    class MongoDB,Redis,S3,Queue data
+    class GovAPI,ExtPortal,Cal external

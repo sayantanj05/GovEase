@@ -529,6 +529,7 @@
         let currentDirection = 'LR';
 
         function init() {
+            mermaid.initialize({ startOnLoad: false, theme: 'default' });
             renderTableList();
             renderDiagram();
             updateStats();
@@ -596,43 +597,52 @@
 
         function renderDiagram() {
             const graphDef = generateMermaidGraph();
-            const container = $('#diagramContent');
-            container.html(`<div class="mermaid">${graphDef}</div>`);
+            const container = document.getElementById('diagramContent');
+            container.innerHTML = '';
+            const div = document.createElement('div');
+            div.className = 'mermaid';
+            div.textContent = graphDef;
+            container.appendChild(div);
             mermaid.run({
                 querySelector: '.mermaid'
             }).catch(err => {
                 console.error('Mermaid render error:', err);
-                $('.mermaid').replaceWith(`<pre style="color:red;padding:1rem;">Diagram error: ${err.message}</pre>`);
+                container.innerHTML = '<pre style="color:red;padding:1rem;overflow:auto;">Diagram rendering failed: ' + err.message + '\n\n' + graphDef + '</pre>';
             });
         }
 
         function generateMermaidGraph() {
             const tables = Object.keys(schemaData.tables);
-            let graph = 'erDiagram\n';
-
-            tables.forEach(tableName => {
+            let graph = 'graph LR\n';
+            
+            tables.forEach((tableName, index) => {
                 const table = schemaData.tables[tableName];
-                graph += `    ${tableName} {\n`;
-                table.columns.forEach(col => {
-                    const badges = [];
-                    if (col.pk) badges.push('PK');
-                    if (col.fk && col.ref) badges.push('FK');
-                    const suffix = badges.length > 0 ? ` [${badges.join(',')}]` : '';
-                    graph += `        ${col.type} ${col.name}${suffix}\n`;
-                });
-                graph += '    }\n\n';
+                const nodeId = `T${index}`;
+                const colList = table.columns.map(col => {
+                    const markers = [];
+                    if (col.pk) markers.push('PK');
+                    if (col.fk) markers.push('FK');
+                    const markerStr = markers.length > 0 ? ` ${markers.join(',')}` : '';
+                    return `${col.name}${markerStr}`;
+                }).join('<br>');
+                graph += '    ' + nodeId + '[' + tableName + '<br>' + colList + ']\n';
             });
 
-            tables.forEach(tableName => {
+            const relations = [];
+            tables.forEach((tableName, index) => {
                 const table = schemaData.tables[tableName];
+                const sourceId = `T${index}`;
                 table.columns.forEach(col => {
                     if (col.fk && col.ref) {
-                        graph += `    ${tableName} ||--o{ ${col.ref} : ""\n`;
-                    }
+                        const refIndex = tables.indexOf(col.ref);
+                        if (refIndex !== -1) {
+                            relations.push(`    ${sourceId} --> ${`T${refIndex}`}`);
+                        }
+                    });
                 });
             });
 
-            return graph;
+            return graph + '\n' + relations.join('\n');
         }
 
         function updateStats() {
