@@ -1,0 +1,12 @@
+﻿{
+  "userId": "USER003",
+  "hobbies": ["Reading", "Cricket", "Coding"],
+  "interests": ["AI", "Web Development", "Government Services"],
+  "preferredLanguages": ["English", "Hindi"],
+  "locationPreferences": ["Delhi", "Bangalore"],
+  "opportunityTypePreferences": ["Job", "Scheme"],
+  "salaryRange": {
+    "min": 500000,
+    "max": 1500000
+  }
+}

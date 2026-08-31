@@ -1,0 +1,41 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Navbar from './components/Navbar';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import ProfilePage from './pages/ProfilePage';
+import './App.css';
+
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) return <div className="loading">Loading...</div>;
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) return <div className="loading">Loading...</div>;
+  return isAuthenticated ? <Navigate to="/dashboard" /> : children;
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <div className="app">
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
+  );
+}
+
+export default App;

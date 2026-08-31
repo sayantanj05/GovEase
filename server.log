@@ -1,0 +1,3 @@
+◇ injected env (6) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+Connected to MongoDB Atlas
+[server] GovEase AI Backend listening on port 3000

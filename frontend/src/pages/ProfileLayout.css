@@ -1,0 +1,130 @@
+.profile-layout {
+  display: flex;
+  min-height: calc(100vh - 64px);
+  background: #f0f4f8;
+}
+
+.profile-sidebar {
+  width: 240px;
+  background: #1a365d;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+}
+
+.profile-sidebar.collapsed {
+  width: 70px;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.collapse-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 12px 0;
+  overflow-y: auto;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 20px;
+  background: transparent;
+  border: none;
+  color: #a0aec0;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.nav-item.active {
+  background: rgba(66, 153, 225, 0.2);
+  color: #63b3ed;
+  border-right: 3px solid #63b3ed;
+}
+
+.nav-icon {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+}
+
+.profile-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.content-header {
+  margin-bottom: 24px;
+}
+
+.content-header h2 {
+  margin: 0;
+  color: #1a365d;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.content-body {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  padding: 32px;
+}
+
+@media (max-width: 768px) {
+  .profile-sidebar {
+    position: fixed;
+    z-index: 100;
+    height: calc(100vh - 64px);
+  }
+  .profile-sidebar.collapsed {
+    width: 0;
+    overflow: hidden;
+  }
+  .profile-content {
+    padding: 16px;
+  }
+  .content-body {
+    padding: 20px;
+  }
+}

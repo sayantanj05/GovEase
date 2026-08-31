@@ -1,0 +1,10 @@
+﻿{
+  "userId": "USER003",
+  "ids": [
+    {
+      "idType": "ABC ID",
+      "idNumber": "ABC1234567890",
+      "verified": false
+    }
+  ]
+}
