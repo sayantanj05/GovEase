@@ -11,6 +11,7 @@ const skillRoutes = require('./routes/skill.routes');
 const identityRoutes = require('./routes/identity.routes');
 const documentRoutes = require('./routes/document.routes');
 const preferenceRoutes = require('./routes/preference.routes');
+const certificationRoutes = require('./routes/certification.routes');
 
 const app = express();
 
@@ -42,7 +43,8 @@ app.get('/', (req, res) => {
       skill: '/api/skill',
       identity: '/api/identity',
       document: '/api/document',
-      preference: '/api/preference'
+      preference: '/api/preference',
+      certification: '/api/certification'
     }
   });
 });
@@ -55,6 +57,7 @@ app.use('/api/skill', skillRoutes);
 app.use('/api/identity', identityRoutes);
 app.use('/api/document', documentRoutes);
 app.use('/api/preference', preferenceRoutes);
+app.use('/api/certification', certificationRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });

@@ -450,6 +450,29 @@ CREATE INDEX idx_recommendation_events_user_id ON recommendation_events(user_id)
 CREATE INDEX idx_recommendation_events_created_at ON recommendation_events(created_at);
 
 -- ============================================
+-- CERTIFICATIONS
+-- ============================================
+
+CREATE TABLE certifications (
+    certification_id VARCHAR(255) PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL REFERENCES users(user_id),
+    name VARCHAR(500) NOT NULL,
+    issuing_organization VARCHAR(500) NOT NULL,
+    credential_id VARCHAR(255),
+    credential_url TEXT,
+    category VARCHAR(50) CHECK (category IN ('Technical', 'Professional', 'Academic', 'License', 'Other')),
+    description TEXT,
+    image_file_id VARCHAR(255),
+    image_file_name VARCHAR(500),
+    image_mime_type VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_certifications_user_id ON certifications(user_id);
+CREATE INDEX idx_certifications_category ON certifications(category);
+
+-- ============================================
 -- SAMPLE DATA FOR TESTING (Optional)
 -- ============================================
 

@@ -273,5 +273,23 @@ export const certificationApi = {
       headers: getAuthHeaders()
     });
     return res.json();
+  },
+  uploadImage: async (formData) => {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API_BASE}/certification/upload-image`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData
+    });
+    return res.json();
+  },
+  getImage: (id) => `${API_BASE}/certification/image/${id}`,
+  validateUrl: async (url) => {
+    const res = await fetch(`${API_BASE}/certification/validate-url`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ url })
+    });
+    return res.json();
   }
 };

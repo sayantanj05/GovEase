@@ -5,10 +5,13 @@ const certificationSchema = new mongoose.Schema({
   userId: { type: String, required: true, ref: 'User', index: true },
   name: { type: String, required: true, trim: true },
   issuingOrganization: { type: String, required: true, trim: true },
-  credentialId: { type: String },
-  credentialUrl: { type: String },
+  credentialId: { type: String, trim: true },
+  credentialUrl: { type: String, trim: true },
   category: { type: String, enum: ['Technical', 'Professional', 'Academic', 'License', 'Other'], default: 'Technical' },
-  imageFileId: { type: String }
+  description: { type: String, trim: true },
+  imageFileId: { type: String },
+  imageFileName: { type: String, trim: true },
+  imageMimeType: { type: String, trim: true }
 }, { collection: 'certifications', timestamps: true });
 
 module.exports = mongoose.model('Certification', certificationSchema);

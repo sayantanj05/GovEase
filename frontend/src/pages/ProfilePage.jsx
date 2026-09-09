@@ -43,11 +43,12 @@ const [uploadingType, setUploadingType] = useState(null);
 const [dragOver, setDragOver] = useState(null);
 const fileInputRefs = useRef({});
 const [imageUrls, setImageUrls] = useState({});
+const [certImageUrls, setCertImageUrls] = useState({});
 
 function getEmptyEdu() { return { educationType: '', schoolName: '', boardUniversity: '', stream: '', degree: '', specialization: '', institution: '', startingYear: '', passingYear: '', percentageCgpa: '' }; }
 function getEmptyExp() { return { organization: '', role: '', employmentStatus: '', startDate: '', endDate: '', currentlyWorking: false, description: '' }; }
 function getEmptySkill() { return { skillType: '', name: '', proficiency: 'Beginner', details: '' }; }
-function getEmptyCert() { return { name: '', issuingOrganization: '', credentialId: '', credentialUrl: '', category: 'Technical' }; }
+function getEmptyCert() { return { name: '', issuingOrganization: '', credentialId: '', credentialUrl: '', category: 'Technical', description: '', uploadMode: 'image', imageFileId: '', imageFileName: '', imageMimeType: '' }; }
 
   useEffect(() => { loadAllData(); loadDocTypes(); }, [user]);
 
@@ -58,8 +59,22 @@ function getEmptyCert() { return { name: '', issuingOrganization: '', credential
           URL.revokeObjectURL(url);
         }
       });
+      Object.values(certImageUrls).forEach(url => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      });
     };
-  }, [imageUrls]);
+  }, [imageUrls, certImageUrls]);
+
+  // Load certification images when certifications data changes
+  useEffect(() => {
+    certifications.forEach(cert => {
+      if (cert.imageFileId && !certImageUrls[cert.imageFileId]) {
+        loadCertImageUrl(cert.imageFileId);
+      }
+    });
+  }, [certifications]);
 
   const loadImageUrl = async (docId, fileUrl) => {
     if (imageUrls[docId]) return imageUrls[docId];
@@ -78,6 +93,35 @@ function getEmptyCert() { return { name: '', issuingOrganization: '', credential
       return blobUrl;
     } catch (error) {
       console.error('Error loading image:', error);
+      return null;
+    }
+  };
+
+  const loadCertImageUrl = async (imageFileId) => {
+    if (!imageFileId) return null;
+    if (certImageUrls[imageFileId]) return certImageUrls[imageFileId];
+
+    try {
+      const token = localStorage.getItem('token');
+      const imageUrl = certificationApi.getImage(imageFileId);
+      console.log('Loading certification image:', imageFileId, 'URL:', imageUrl);
+      
+      const response = await fetch(imageUrl, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch certification image:', response.status, response.statusText);
+        throw new Error('Failed to fetch certification image');
+      }
+
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      setCertImageUrls(prev => ({ ...prev, [imageFileId]: blobUrl }));
+      console.log('Successfully loaded certification image:', imageFileId);
+      return blobUrl;
+    } catch (error) {
+      console.error('Error loading certification image:', error, 'File ID:', imageFileId);
       return null;
     }
   };
@@ -282,7 +326,7 @@ function getEmptyCert() { return { name: '', issuingOrganization: '', credential
   const handleCertSave = async () => {
     const uid = user._id || user.id;
     const data = { ...certForm, userId: uid };
-    console.log('Saving certification:', data);
+    console.log('Saving certification with imageFileId:', data.imageFileId, 'imageFileName:', data.imageFileName);
     try {
       let result;
       if (editingCert) {
@@ -302,6 +346,51 @@ function getEmptyCert() { return { name: '', issuingOrganization: '', credential
     } catch (err) {
       console.error('Certification save error:', err);
       showMessage('error', 'Failed to save certification');
+    }
+  };
+
+  const handleCertImageUpload = async (file) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      showMessage('error', 'File size exceeds 5MB limit');
+      return;
+    }
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      showMessage('error', 'Invalid file type. Only JPEG, PNG, WebP, GIF allowed');
+      return;
+    }
+    const fd = new FormData();
+    fd.append('image', file);
+    try {
+      const res = await certificationApi.uploadImage(fd);
+      if (res.success) {
+        setCertForm({ ...certForm, imageFileId: res.imageFileId, imageFileName: res.imageFileName, imageMimeType: res.imageMimeType });
+        showMessage('success', 'Image uploaded!');
+      } else {
+        showMessage('error', res.message || 'Upload failed');
+      }
+    } catch (err) {
+      console.error('Cert image upload error:', err);
+      showMessage('error', 'Upload failed');
+    }
+  };
+
+  const handleCertUrlValidate = async (url) => {
+    if (!url) {
+      showMessage('error', 'Please enter a URL first');
+      return;
+    }
+    try {
+      const res = await certificationApi.validateUrl(url);
+      if (res.isValid) {
+        showMessage('success', 'URL is valid!');
+      } else {
+        showMessage('error', 'Invalid URL format');
+      }
+    } catch (err) {
+      console.error('URL validation error:', err);
+      showMessage('error', 'Validation failed');
     }
   };
 
@@ -821,8 +910,8 @@ function getEmptyCert() { return { name: '', issuingOrganization: '', credential
             <div className="section-header"><h2>Certifications</h2></div>
             <form className="compact-form cert-form" onSubmit={(e) => { e.preventDefault(); handleCertSave(); }}>
               <div className="form-grid-cert">
-                <input placeholder="Certification Name *" value={certForm.name} onChange={e => setCertForm({ ...certForm, name: e.target.value })} required />
-                <input placeholder="Issuing Organization *" value={certForm.issuingOrganization} onChange={e => setCertForm({ ...certForm, issuingOrganization: e.target.value })} required />
+                <input placeholder="Certification Name" value={certForm.name} onChange={e => setCertForm({ ...certForm, name: e.target.value })} />
+                <input placeholder="Issuing Organization" value={certForm.issuingOrganization} onChange={e => setCertForm({ ...certForm, issuingOrganization: e.target.value })} />
                 <select value={certForm.category} onChange={e => setCertForm({ ...certForm, category: e.target.value })}>
                   <option value="Technical">Technical</option>
                   <option value="Professional">Professional</option>
@@ -832,6 +921,50 @@ function getEmptyCert() { return { name: '', issuingOrganization: '', credential
                 </select>
                 <input placeholder="Credential ID" value={certForm.credentialId} onChange={e => setCertForm({ ...certForm, credentialId: e.target.value })} />
                 <input placeholder="Credential URL" value={certForm.credentialUrl} onChange={e => setCertForm({ ...certForm, credentialUrl: e.target.value })} />
+                <textarea placeholder="Description" value={certForm.description || ''} onChange={e => setCertForm({ ...certForm, description: e.target.value })} rows="2" />
+                <div className="cert-upload-row">
+                  <div className="cert-upload-tabs">
+                    <button type="button" className={certForm.uploadMode === 'image' ? 'cert-tab-active' : ''} onClick={() => setCertForm({ ...certForm, uploadMode: 'image' })}>Upload Image</button>
+                    <button type="button" className={certForm.uploadMode === 'url' ? 'cert-tab-active' : ''} onClick={() => setCertForm({ ...certForm, uploadMode: 'url' })}>Add URL</button>
+                  </div>
+                  {certForm.uploadMode === 'image' ? (
+                    <div className="cert-image-upload">
+                      <input ref={el => fileInputRefs.current['cert_image'] = el} type="file" style={{ display: 'none' }} accept="image/jpeg,image/png,image/webp,image/gif" onChange={(e) => handleCertImageUpload(e.target.files[0])} />
+                      <div className="cert-upload-dropzone" onClick={() => fileInputRefs.current['cert_image']?.click()}>
+                        <span className="dropzone-icon">🖼️</span>
+                        <span className="dropzone-text">{certForm.imageFileName ? certForm.imageFileName : 'Click to upload certificate image'}</span>
+                        <span className="dropzone-hint">JPEG, PNG, WebP, GIF (max 5MB)</span>
+                      </div>
+                      {certForm.imageFileId && (
+                        <div className="cert-image-preview">
+                          <img 
+                            src={certImageUrls[certForm.imageFileId] || certificationApi.getImage(certForm.imageFileId)} 
+                            alt="Certificate" 
+                            className="cert-preview-img" 
+                            onLoad={() => loadCertImageUrl(certForm.imageFileId)}
+                            onError={(e) => { 
+                              console.error('Failed to load cert image:', certForm.imageFileId);
+                              e.target.style.display = 'none'; 
+                            }} 
+                          />
+                          <button type="button" className="cert-remove-img" onClick={() => {
+                            setCertForm({ ...certForm, imageFileId: '', imageFileName: '', imageMimeType: '' });
+                            setCertImageUrls(prev => {
+                              const newUrls = { ...prev };
+                              delete newUrls[certForm.imageFileId];
+                              return newUrls;
+                            });
+                          }}>Remove</button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="cert-url-input">
+                      <input placeholder="https://example.com/certificate/verify" value={certForm.credentialUrl || ''} onChange={e => setCertForm({ ...certForm, credentialUrl: e.target.value })} />
+                      <button type="button" className="btn-validate" onClick={() => handleCertUrlValidate(certForm.credentialUrl)}>Validate</button>
+                    </div>
+                  )}
+                </div>
                 <button type="submit" className="btn-add">{editingCert ? 'Update' : 'Add'}</button>
               </div>
             </form>
@@ -839,12 +972,26 @@ function getEmptyCert() { return { name: '', issuingOrganization: '', credential
               {certifications.map(cert => (
                 <div key={cert._id} className="cert-card">
                   <div className="cert-card-header">
+                    {cert.imageFileId ? (
+                      certImageUrls[cert.imageFileId] ? (
+                        <img 
+                          src={certImageUrls[cert.imageFileId]} 
+                          alt={cert.name}
+                          className="cert-card-img" 
+                        />
+                      ) : (
+                        <div className="cert-card-img-loading">Loading...</div>
+                      )
+                    ) : (
+                      <div className="cert-card-img-loading">No Image</div>
+                    )}
                     <span className="cert-category-badge">{cert.category}</span>
                   </div>
                   <div className="cert-card-body">
                     <h4>{cert.name}</h4>
                     <p className="cert-org">{cert.issuingOrganization}</p>
                     {cert.credentialId && <p className="cert-cred-id">ID: {cert.credentialId}</p>}
+                    {cert.description && <p className="cert-desc">{cert.description}</p>}
                     {cert.credentialUrl && (
                       <a href={cert.credentialUrl} target="_blank" rel="noopener noreferrer" className="cert-link">View Credential</a>
                     )}
@@ -905,16 +1052,13 @@ function getEmptyCert() { return { name: '', issuingOrganization: '', credential
                           {typeDocs.length > 0 && (() => {
                             const firstDoc = typeDocs[0];
                             const isImage = firstDoc?.mimeType?.includes('image') || firstDoc?.fileName?.match(/\.(jpg|jpeg|png|gif|webp)$/i);
-                            const imageUrl = imageUrls[firstDoc?._id] || documentApi.getFileUrl(firstDoc?._id);
+                            
+                            if (!isImage) return null;
 
-                            if (isImage) {
-                              loadImageUrl(firstDoc._id, documentApi.getFileUrl(firstDoc._id));
-                            }
-
-                            return isImage ? (
+                            return (
                               <div className="doc-image-full">
                                 <img
-                                  src={imageUrl}
+                                  src={documentApi.getFileUrl(firstDoc._id)}
                                   alt={firstDoc.fileName}
                                   className="doc-full-image"
                                   onClick={() => window.open(documentApi.getFileUrl(firstDoc._id), '_blank')}
@@ -925,20 +1069,13 @@ function getEmptyCert() { return { name: '', issuingOrganization: '', credential
                                 />
                                 <button
                                   className="doc-full-delete"
-                                  onClick={() => {
-                                    handleDocDelete(firstDoc._id, firstDoc.fileName);
-                                    setImageUrls(prev => {
-                                      const newUrls = { ...prev };
-                                      delete newUrls[firstDoc._id];
-                                      return newUrls;
-                                    });
-                                  }}
+                                  onClick={() => handleDocDelete(firstDoc._id, firstDoc.fileName)}
                                   title="Delete"
                                 >
                                   ×
                                 </button>
                               </div>
-                            ) : null;
+                            );
                           })()}
 
                           {(() => {
@@ -951,11 +1088,7 @@ function getEmptyCert() { return { name: '', issuingOrganization: '', credential
                               onDragOver={(e) => handleDragOver(e, type.id)}
                               onDragLeave={handleDragLeave}
                               onDrop={(e) => handleDrop(e, type.id)}
-                              onClick={() => {
-                                console.log('Dropzone clicked, typeId:', type.id);
-                                console.log('File input ref:', fileInputRefs.current[type.id]);
-                                fileInputRefs.current[type.id]?.click();
-                              }}
+                              onClick={() => fileInputRefs.current[type.id]?.click()}
                             >
                               {isUploading ? (
                                 <div className="upload-progress">
@@ -966,7 +1099,7 @@ function getEmptyCert() { return { name: '', issuingOrganization: '', credential
                                 <>
                                   <div className="dropzone-icon">📤</div>
                                   <span className="dropzone-text">
-                                    {typeDocs.length === 0 ? 'Drop file or click to upload' : `Add more files`}
+                                    {typeDocs.length === 0 ? 'Drop file or click to upload' : 'Add more files'}
                                   </span>
                                   <span className="dropzone-hint">JPEG, PNG, PDF (max 5MB)</span>
                                 </>
@@ -975,10 +1108,7 @@ function getEmptyCert() { return { name: '', issuingOrganization: '', credential
                                 ref={el => fileInputRefs.current[type.id] = el}
                                 type="file"
                                 accept="image/jpeg,image/png,application/pdf"
-                                onChange={(e) => {
-                                  console.log('File input onChange triggered:', e.target.files);
-                                  handleFileSelect(type.id, e.target.files[0]);
-                                }}
+                                onChange={(e) => handleFileSelect(type.id, e.target.files[0])}
                                 style={{ display: 'none' }}
                               />
                             </div>
@@ -986,68 +1116,37 @@ function getEmptyCert() { return { name: '', issuingOrganization: '', credential
 
                           {typeDocs.length > 0 && (!typeDocs[0]?.mimeType?.includes('image') && !typeDocs[0]?.fileName?.match(/\.(jpg|jpeg|png|gif|webp)$/i)) && (
                             <div className="doc-list">
-                              {typeDocs.slice(0, 1).map(doc => {
-                                const isImage = doc.mimeType?.includes('image') || doc.fileName?.match(/\.(jpg|jpeg|png|gif|webp)$/i);
-                                const imageUrl = imageUrls[doc._id] || documentApi.getFileUrl(doc._id);
-
-                                if (isImage) {
-                                  loadImageUrl(doc._id, documentApi.getFileUrl(doc._id));
-                                }
-
-                                return (
-                                  <div key={doc._id} className="doc-item">
-                                    {isImage ? (
-                                      <div className="doc-image-preview">
-                                        <img
-                                          src={imageUrl}
-                                          alt={doc.fileName}
-                                          className="doc-thumbnail"
-                                          onClick={() => window.open(documentApi.getFileUrl(doc._id), '_blank')}
-                                          onError={(e) => {
-                                            console.error('Thumbnail failed to load:', doc._id, doc.fileName);
-                                            e.target.style.display = 'none';
-                                          }}
-                                        />
-                                      </div>
-                                    ) : (
-                                      <span className="doc-file-icon">{getFileIcon(doc.mimeType)}</span>
-                                    )}
-                                    <div className="doc-file-info">
-                                      <span className="doc-file-name" title={doc.fileName}>
-                                        {doc.fileName.length > 25 ? doc.fileName.substring(0, 22) + '...' : doc.fileName}
-                                      </span>
-                                      <span className="doc-file-meta">
-                                        {formatFileSize(doc.fileSize)} | {new Date(doc.createdAt).toLocaleDateString()}
-                                      </span>
-                                    </div>
-                                    <div className="doc-file-actions">
-                                      <a
-                                        href={documentApi.getFileUrl(doc._id)}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="doc-action-btn view"
-                                        title="View"
-                                      >
-                                        👁️
-                                      </a>
-                                      <button
-                                        className="doc-action-btn delete"
-                                        onClick={() => {
-                                          handleDocDelete(doc._id, doc.fileName);
-                                          setImageUrls(prev => {
-                                            const newUrls = { ...prev };
-                                            delete newUrls[doc._id];
-                                            return newUrls;
-                                          });
-                                        }}
-                                        title="Delete"
-                                      >
-                                        🗑️
-                                      </button>
-                                    </div>
+                              {typeDocs.slice(0, 1).map(doc => (
+                                <div key={doc._id} className="doc-item">
+                                  <span className="doc-file-icon">{getFileIcon(doc.mimeType)}</span>
+                                  <div className="doc-file-info">
+                                    <span className="doc-file-name" title={doc.fileName}>
+                                      {doc.fileName.length > 25 ? doc.fileName.substring(0, 22) + '...' : doc.fileName}
+                                    </span>
+                                    <span className="doc-file-meta">
+                                      {formatFileSize(doc.fileSize)} | {new Date(doc.createdAt).toLocaleDateString()}
+                                    </span>
                                   </div>
-                                );
-                              })}
+                                  <div className="doc-file-actions">
+                                    <a
+                                      href={documentApi.getFileUrl(doc._id)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="doc-action-btn view"
+                                      title="View"
+                                    >
+                                      👁️
+                                    </a>
+                                    <button
+                                      className="doc-action-btn delete"
+                                      onClick={() => handleDocDelete(doc._id, doc.fileName)}
+                                      title="Delete"
+                                    >
+                                      🗑️
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           )}
                         </div>
