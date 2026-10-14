@@ -18,7 +18,7 @@ const Login = () => {
 
     try {
       await loginUser(email, password);
-      navigate('/dashboard');
+      navigate('/exams');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -55,7 +55,7 @@ const Login = () => {
               placeholder="Enter your password"
             />
           </div>
-          <button type="submit" className="btn-primary" disabled={loading}>
+          <button onClick={() => {navigate("/exams")}} type="submit" className="btn-primary" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>

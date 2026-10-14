@@ -14,7 +14,7 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="nav-brand">
-        <Link to="/">GovEase AI(Sample Prototype)</Link>
+        <Link to="/">GovEase AI(Prototype)</Link>
       </div>
       <div className="nav-links">
         {isAuthenticated ? (

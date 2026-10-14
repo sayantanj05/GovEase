@@ -1,13 +1,5 @@
 const mongoose = require('mongoose');
 
-const eligibilityRuleSchema = new mongoose.Schema({
-  field: { type: String, required: true, trim: true },
-  operator: { type: String, required: true, enum: ['=', '!=', '>', '<', '>=', '<=', 'in'] },
-  value: { type: mongoose.Schema.Types.Mixed, required: true },
-  dataType: { type: String, required: true, enum: ['number', 'string', 'date', 'boolean'], default: 'string' },
-  unit: { type: String, trim: true }
-}, { _id: false });
-
 const examSchema = new mongoose.Schema({
   _id: { type: String, required: true },
   examName: { type: String, required: true, trim: true },
@@ -15,7 +7,7 @@ const examSchema = new mongoose.Schema({
   examCategory: {
     type: String,
     required: true,
-    enum: ['Civil Services', 'SSC', 'Banking', 'Railway', 'Defence', 'Police', 'Teaching', 'State PSC', 'PSU', 'Other']
+    enum: ['Civil Services', 'SSC', 'Banking', 'Railway', 'Defence', 'Police', 'Teaching', 'State PSC', 'PSU', 'Entrance', 'Other']
   },
   examType: {
     type: String,
@@ -41,7 +33,7 @@ const examSchema = new mongoose.Schema({
   resultDate: Date,
   scoreValidityYears: { type: Number, min: 0 },
   officialWebsite: { type: String, trim: true },
-  eligibilityRules: { type: [eligibilityRuleSchema], default: [] },
+  eligibilityRules: { type: mongoose.Schema.Types.Mixed, default: {} },
   notificationSent: { type: Boolean, default: false },
   notificationSentAt: Date,
   status: { type: String, required: true, enum: ['Upcoming', 'Active', 'Closed', 'Expired', 'Cancelled'], default: 'Upcoming' },
