@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { examsApi } from '../api/examsApi';
+import { MdCalendarToday, MdAccessTime, MdCategory, MdSchool, MdDescription, MdPerson, MdLocationOn, MdArrowForward, MdCheckCircle, MdOutlineWorkOutline } from 'react-icons/md';
 import './ExamsPage.css';
 
 const statusClass = (status) => `exam-badge-${(status || '').toLowerCase().replace(/ /g, '-')}`;
@@ -30,7 +31,7 @@ export default function ExamsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="loading">Loading exams...</div>;
+  if (loading) return <div className="loading"><span className="loading-icon"><MdSchool /></span>Loading exams...</div>;
 
   return (
     <div className="exams-page">
@@ -43,25 +44,83 @@ export default function ExamsPage() {
           {exams.map((exam) => (
             <div key={exam._id} className="exam-card">
               <div className="exam-card-header">
-                <div>
+                <div className="exam-card-title-section">
                   <div className="exam-card-title">{exam.examName}</div>
-                  <div style={{ fontSize: '0.8rem', color: '#7180ac' }}>{exam.examBody}</div>
+                  <div className="exam-card-subtitle">
+                    <MdSchool className="icon" />
+                    {exam.examBody}
+                  </div>
                 </div>
                 {statusBadge(exam.status)}
               </div>
+              
               <div className="exam-card-body">
-                {exam.examCategory && <span>Category: {exam.examCategory}</span>}
-                {exam.examMode && <span>Mode: {exam.examMode}</span>}
-                {exam.durationMinutes && <span>Duration: {exam.durationMinutes} min</span>}
+                {exam.examCategory && (
+                  <div className="exam-info-item">
+                    <MdCategory className="info-icon" />
+                    <span>{exam.examCategory}</span>
+                  </div>
+                )}
+                {exam.examMode && (
+                  <div className="exam-info-item">
+                    <MdDescription className="info-icon" />
+                    <span>{exam.examMode}</span>
+                  </div>
+                )}
+                {exam.durationMinutes && (
+                  <div className="exam-info-item">
+                    <MdAccessTime className="info-icon" />
+                    <span>{exam.durationMinutes} minutes</span>
+                  </div>
+                )}
+                {exam.eligibility && (
+                  <div className="exam-info-item">
+                    <MdPerson className="info-icon" />
+                    <span>{exam.eligibility}</span>
+                  </div>
+                )}
+                {exam.fee && (
+                  <div className="exam-info-item">
+                    <MdCheckCircle className="info-icon" />
+                    <span>Fee: ₹{exam.fee}</span>
+                  </div>
+                )}
+                {exam.venue && (
+                  <div className="exam-info-item">
+                    <MdLocationOn className="info-icon" />
+                    <span>{exam.venue}</span>
+                  </div>
+                )}
               </div>
+              
               <div className="exam-card-meta">
-                {exam.applicationStartDate && <span>Starts: {new Date(exam.applicationStartDate).toLocaleDateString()}</span>}
-                {exam.applicationDeadline && <span>Deadline: {new Date(exam.applicationDeadline).toLocaleDateString()}</span>}
-                {exam.examDate && <span>Exam: {new Date(exam.examDate).toLocaleDateString()}</span>}
+                {exam.applicationStartDate && (
+                  <div className="meta-item">
+                    <MdCalendarToday className="meta-icon" />
+                    <span>Apply: {new Date(exam.applicationStartDate).toLocaleDateString()}</span>
+                  </div>
+                )}
+                {exam.applicationDeadline && (
+                  <div className="meta-item">
+                    <MdCalendarToday className="meta-icon" />
+                    <span>Deadline: {new Date(exam.applicationDeadline).toLocaleDateString()}</span>
+                  </div>
+                )}
+                {exam.examDate && (
+                  <div className="meta-item">
+                    <MdCalendarToday className="meta-icon" />
+                    <span>Exam: {new Date(exam.examDate).toLocaleDateString()}</span>
+                  </div>
+                )}
               </div>
+              
               <div className="exam-card-actions">
-                <button className="btn btn-secondary" onClick={() => navigate(`/exams/${exam._id}`)}>View Details</button>
-                <button className="btn btn-primary" onClick={() => navigate(`/exams/${exam._id}/apply`)}>Apply</button>
+                <button className="btn btn-secondary" onClick={() => navigate(`/exams/${exam._id}`)}>
+                  View Details
+                </button>
+                <button className="btn btn-primary" onClick={() => navigate(`/exams/${exam._id}/apply`)}>
+                  Apply Now <MdArrowForward className="btn-icon" />
+                </button>
               </div>
             </div>
           ))}

@@ -4,6 +4,7 @@ const userController = require('../controllers/user.controller');
 const auditController = require('../controllers/audit.controller');
 const contentController = require('../controllers/content.controller');
 const formController = require('../controllers/form.controller');
+const applicationController = require('../controllers/application.controller');
 const EligibilityRule = require('../models/eligibilityRule.model');
 const Exam = require('../models/exam.model');
 const Opportunity = require('../models/opportunity.model');
@@ -43,5 +44,12 @@ router.post('/forms', formController.create);
 router.patch('/forms/:id', formController.update);
 router.delete('/forms/:id', formController.remove);
 router.post('/forms/upload-image', formController.uploadImage);
+
+router.get('/applications', applicationController.listApplications);
+router.get('/applications/stats', applicationController.getApplicationStats);
+router.get('/applications/target/:targetType/:targetId', applicationController.getApplicationsForTarget);
+router.get('/applications/:id', applicationController.getApplication);
+router.patch('/applications/:id/status', applicationController.updateApplicationStatus);
+router.delete('/applications/:id', applicationController.deleteApplication);
 
 module.exports = router;

@@ -7,12 +7,12 @@ const examSchema = new mongoose.Schema({
   examCategory: {
     type: String,
     required: true,
-    enum: ['Civil Services', 'SSC', 'Banking', 'Railway', 'Defence', 'Police', 'Teaching', 'State PSC', 'PSU', 'Entrance', 'Other']
+    enum: ['Civil Services', 'SSC', 'Banking', 'Railway', 'Defence', 'Police', 'Teaching', 'State PSC', 'PSU', 'Entrance', 'Engineering', 'Competitive Exam', 'Other']
   },
   examType: {
     type: String,
     required: true,
-    enum: ['Preliminary', 'Mains', 'Interview', 'Physical Test', 'Skill Test', 'Document Verification', 'Other']
+    enum: ['Preliminary', 'Mains', 'Interview', 'Physical Test', 'Skill Test', 'Document Verification', 'Entrance', 'Other']
   },
   examMode: { type: String, required: true, enum: ['Online', 'Offline', 'Hybrid'] },
   totalVacancies: { type: Number, min: 0 },

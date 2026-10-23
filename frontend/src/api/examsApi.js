@@ -50,4 +50,29 @@ export const opportunitiesApi = {
   }
 };
 
+export const applicationsApi = {
+  list: async (params = {}) => {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== '') {
+        searchParams.append(key, value);
+      }
+    });
+    const res = await fetch(`${API_BASE}/applications?${searchParams.toString()}`, { headers: getAuthHeaders() });
+    return res.json();
+  },
+  get: async (id) => {
+    const res = await fetch(`${API_BASE}/applications/${id}`, { headers: getAuthHeaders() });
+    return res.json();
+  },
+  submit: async (targetType, targetId, formData, formId) => {
+    const res = await fetch(`${API_BASE}/${targetType}s/${targetId}/apply`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ targetType, targetId, formId, formData })
+    });
+    return res.json();
+  }
+};
+
 export default getAuthHeaders;

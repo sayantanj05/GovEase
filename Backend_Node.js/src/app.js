@@ -14,6 +14,7 @@ const preferenceRoutes = require('./routes/preference.routes');
 const certificationRoutes = require('./routes/certification.routes');
 const examRoutes = require('./routes/exam.routes');
 const opportunityRoutes = require('./routes/opportunity.routes');
+const applicationRoutes = require('./routes/application.routes');
 
 const app = express();
 
@@ -48,7 +49,8 @@ app.get('/', (req, res) => {
       preference: '/api/preference',
       certification: '/api/certification',
       exam: '/api/exams',
-      opportunity: '/api/opportunities'
+      opportunity: '/api/opportunities',
+      application: '/api/applications'
     }
   });
 });
@@ -64,6 +66,7 @@ app.use('/api/preference', preferenceRoutes);
 app.use('/api/certification', certificationRoutes);
 app.use('/api/exams', examRoutes);
 app.use('/api/opportunities', opportunityRoutes);
+app.use('/api/applications', applicationRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });

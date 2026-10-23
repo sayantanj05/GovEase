@@ -11,6 +11,39 @@
   margin-bottom: 1.5rem;
 }
 
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  font-size: 1rem;
+  color: #7180ac;
+  gap: 0.75rem;
+}
+
+.loading-icon {
+  display: flex;
+  align-items: center;
+  font-size: 2.5rem;
+  color: #94a3b8;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.loading-icon svg {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 .exam-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -39,6 +72,10 @@
   gap: 1rem;
 }
 
+.exam-card-title-section {
+  flex: 1;
+}
+
 .exam-card-title {
   font-size: 1.125rem;
   font-weight: 600;
@@ -46,20 +83,61 @@
   margin-bottom: 0.25rem;
 }
 
+.exam-card-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: #7180ac;
+}
+
+.exam-card-subtitle .icon {
+  font-size: 0.9rem;
+}
+
 .exam-card-body {
   flex: 1;
   margin-top: 0.75rem;
   color: #4a5568;
   font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.exam-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: #f8fafc;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.info-icon {
+  font-size: 1rem;
+  color: #64748b;
 }
 
 .exam-card-meta {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.4rem;
   margin-top: 0.75rem;
   font-size: 0.8rem;
   color: #7180ac;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.meta-icon {
+  font-size: 0.9rem;
+  color: #94a3b8;
 }
 
 .exam-badge {
@@ -94,7 +172,15 @@
   font-size: 0.875rem;
   cursor: pointer;
   border: none;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-icon {
+  font-size: 1rem;
 }
 
 .btn-primary {
@@ -119,4 +205,20 @@
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.form-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #475569;
+  background: #fff;
+  transition: border-color 0.15s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }

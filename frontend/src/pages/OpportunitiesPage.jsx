@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { opportunitiesApi } from '../api/examsApi';
+import { MdBusiness, MdLocationOn, MdWork, MdCalendarToday, MdPerson, MdStar, MdAttachMoney, MdAccessTime, MdArrowForward, MdVerified, MdOutlineWorkOutline } from 'react-icons/md';
 import './ExamsPage.css';
 
 const typeBadgeClass = (type) => {
@@ -58,7 +59,7 @@ export default function OpportunitiesPage() {
       .finally(() => setLoading(false));
   }, [query, typeFilter]);
 
-  if (loading) return <div className="loading">Loading opportunities...</div>;
+  if (loading) return <div className="loading"><span className="loading-icon"><MdOutlineWorkOutline /></span>Loading opportunities...</div>;
 
   return (
     <div className="exams-page">
@@ -95,35 +96,77 @@ export default function OpportunitiesPage() {
           {opportunities.map((opp) => (
             <div key={opp._id} className="exam-card">
               <div className="exam-card-header">
-                <div>
+                <div className="exam-card-title-section">
                   <div className="exam-card-title">{opp.title}</div>
-                  <div style={{ fontSize: '0.8rem', color: '#7180ac' }}>{opp.organization}</div>
+                  <div className="exam-card-subtitle">
+                    <MdBusiness className="icon" />
+                    {opp.organization}
+                  </div>
                 </div>
                 <span className={`exam-badge ${typeBadgeClass(opp.opportunityType)}`}>{opp.opportunityType}</span>
               </div>
 
               <div className="exam-card-body">
-                {opp.location && <span>Location: {opp.location}</span>}
-                {opp.workModel && <span>Work Model: {opp.workModel}</span>}
+                {opp.location && (
+                  <div className="exam-info-item">
+                    <MdLocationOn className="info-icon" />
+                    <span>{opp.location}</span>
+                  </div>
+                )}
+                {opp.workModel && (
+                  <div className="exam-info-item">
+                    <MdWork className="info-icon" />
+                    <span>{opp.workModel}</span>
+                  </div>
+                )}
+                {opp.stipend && (
+                  <div className="exam-info-item">
+                    <MdAttachMoney className="info-icon" />
+                    <span>{opp.stipend}</span>
+                  </div>
+                )}
+                {opp.duration && (
+                  <div className="exam-info-item">
+                    <MdAccessTime className="info-icon" />
+                    <span>{opp.duration}</span>
+                  </div>
+                )}
                 {asList(opp.requiredSkills).length > 0 && (
-                  <div style={{ marginTop: '0.5rem' }}>
-                    <strong>Skills:</strong> {asList(opp.requiredSkills).slice(0, 5).join(', ')}
+                  <div className="exam-info-item">
+                    <MdStar className="info-icon" />
+                    <span>{asList(opp.requiredSkills).slice(0, 3).join(', ')}</span>
                   </div>
                 )}
               </div>
 
               <div className="exam-card-meta">
                 {opp.applicationDeadline && (
-                  <span>Deadline: {new Date(opp.applicationDeadline).toLocaleDateString()}</span>
+                  <div className="meta-item">
+                    <MdCalendarToday className="meta-icon" />
+                    <span>Deadline: {new Date(opp.applicationDeadline).toLocaleDateString()}</span>
+                  </div>
                 )}
-                {opp.minAge && opp.maxAge && <span>Age: {opp.minAge}–{opp.maxAge}</span>}
-                <span className={`exam-badge ${statusBadgeClass(opp.status)}`}>{opp.status}</span>
-                {opp.verificationStatus && <span>Verified: {opp.verificationStatus}</span>}
+                {opp.minAge && opp.maxAge && (
+                  <div className="meta-item">
+                    <MdPerson className="meta-icon" />
+                    <span>Age: {opp.minAge}–{opp.maxAge}</span>
+                  </div>
+                )}
+                {opp.verificationStatus && (
+                  <div className="meta-item">
+                    <MdVerified className="meta-icon" />
+                    <span>{opp.verificationStatus}</span>
+                  </div>
+                )}
               </div>
 
               <div className="exam-card-actions">
-                <button className="btn btn-secondary" onClick={() => navigate(`/opportunities/${opp._id}`)}>View Details</button>
-                <button className="btn btn-primary" onClick={() => navigate(`/opportunities/${opp._id}/apply`)}>Apply</button>
+                <button className="btn btn-secondary" onClick={() => navigate(`/opportunities/${opp._id}`)}>
+                  View Details
+                </button>
+                <button className="btn btn-primary" onClick={() => navigate(`/opportunities/${opp._id}/apply`)}>
+                  Apply Now <MdArrowForward className="btn-icon" />
+                </button>
               </div>
             </div>
           ))}

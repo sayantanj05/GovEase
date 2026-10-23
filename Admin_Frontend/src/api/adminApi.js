@@ -169,6 +169,15 @@ export const adminApi = {
       return request(`/audit-logs?${searchParams.toString()}`);
     },
   },
+
+  applications: {
+    list: (params = {}) => listRequest('/applications', params),
+    get: (id) => request(`/applications/${id}`),
+    updateStatus: (id, status) => request(`/applications/${id}/status`, { method: 'PATCH', body: { status } }),
+    delete: (id) => request(`/applications/${id}`, { method: 'DELETE' }),
+    getStats: () => request('/applications/stats'),
+    getForTarget: (targetType, targetId, params = {}) => listRequest(`/applications/target/${targetType}/${targetId}`, params),
+  },
 };
 
 export { ApiError };

@@ -11,6 +11,7 @@ import ExamApplicationPage from './pages/ExamApplicationPage';
 import OpportunitiesPage from './pages/OpportunitiesPage';
 import OpportunityDetailPage from './pages/OpportunityDetailPage';
 import OpportunityApplicationPage from './pages/OpportunityApplicationPage';
+import ApplicationsPage from './pages/ApplicationsPage';
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -43,6 +44,7 @@ function App() {
              <Route path="/opportunities/:id" element={<ProtectedRoute><OpportunityDetailPage /></ProtectedRoute>} />
              <Route path="/opportunities/:id/apply" element={<ProtectedRoute><OpportunityApplicationPage /></ProtectedRoute>} />
              <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+              <Route path="/applications" element={<ProtectedRoute><ApplicationsPage /></ProtectedRoute>} />
           </Routes>
         </div>
       </Router>

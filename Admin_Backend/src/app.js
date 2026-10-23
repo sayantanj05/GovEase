@@ -64,7 +64,7 @@ app.use((error, req, res, next) => {
 const start = async () => {
   await connectDatabase();
   const port = process.env.ADMIN_PORT || 3001;
-  app.listen(port, () => {
+  app.listen(port, '0.0.0.0', () => {
     console.log(`Admin backend listening on port ${port}`);
   });
 };

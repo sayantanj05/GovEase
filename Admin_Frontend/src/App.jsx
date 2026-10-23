@@ -17,6 +17,7 @@ import FormBuilderPage from './pages/FormBuilderPage';
 import Opportunities from './pages/Opportunities';
 import OpportunityForm from './pages/OpportunityForm';
 import AuditLogs from './pages/AuditLogs';
+import AdminApplications from './pages/AdminApplications';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading, user } = useAuth();
@@ -92,6 +93,7 @@ function App() {
          <Route path="opportunities" element={<Opportunities />} />
         <Route path="opportunities/new" element={<OpportunityForm />} />
         <Route path="opportunities/:id/edit" element={<OpportunityForm />} />
+        <Route path="applications" element={<AdminApplications />} />
         <Route path="audit-logs" element={<AuditLogs />} />
       </Route>
     </Routes>

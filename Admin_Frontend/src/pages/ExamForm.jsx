@@ -2,8 +2,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ResourceForm from '../components/ResourceForm';
 import { adminApi } from '../api/adminApi';
 
-const examCategories = ['Civil Services', 'SSC', 'Banking', 'Railway', 'Defence', 'Police', 'Teaching', 'State PSC', 'PSU', 'Other'];
-const examTypes = ['Preliminary', 'Mains', 'Interview', 'Physical Test', 'Skill Test', 'Document Verification', 'Other'];
+const examCategories = ['Civil Services', 'SSC', 'Banking', 'Railway', 'Defence', 'Police', 'Teaching', 'State PSC', 'PSU', 'Entrance', 'Engineering', 'Competitive Exam', 'Other'];
+const examTypes = ['Preliminary', 'Mains', 'Interview', 'Physical Test', 'Skill Test', 'Document Verification', 'Entrance', 'Other'];
 const examModes = ['Online', 'Offline', 'Hybrid'];
 const examStatuses = ['Upcoming', 'Active', 'Closed', 'Expired', 'Cancelled'];
 
